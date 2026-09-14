@@ -190,6 +190,7 @@
   {"title":"...","optionA":"...","optionB":"...","optionC":"...","optionD":"...","correct":"A"}
 ]'></textarea>
         <button class="btn-primary" type="button" id="quiz-bulk-submit" style="margin-top:10px;">Importer ces questions</button>
+        <button class="btn-cancel" type="button" id="quiz-dedupe" style="margin-top:10px;">Nettoyer les doublons</button>
         <div id="quiz-bulk-msg" class="msg"></div>
       </div>
 
@@ -473,7 +474,8 @@ const quizCollection = createCollection({
   summary: (item) => `A. ${item.optionA} · B. ${item.optionB} · C. ${item.optionC} · D. ${item.optionD} — bonne réponse : ${item.correct}`,
 });
 
-document.getElementById('quiz-bulk-submit').addEventListener('click', async () => {
+const quizBulkBtn = document.getElementById('quiz-bulk-submit');
+quizBulkBtn.addEventListener('click', async () => {
   const input = document.getElementById('quiz-bulk-input');
   const msg = document.getElementById('quiz-bulk-msg');
   let list;
@@ -490,30 +492,78 @@ document.getElementById('quiz-bulk-submit').addEventListener('click', async () =
     msg.style.color = '#b91c1c';
     return;
   }
+  quizBulkBtn.disabled = true;
   msg.style.color = '';
+  // Import "idempotent" : si une question a deja exactement ce titre (import
+  // relance par erreur, double-clic...), on la saute plutot que de la dupliquer.
+  const existingRes = await fetch('/api/content/quizquestions', { credentials: 'same-origin', cache: 'no-store' });
+  const existingData = await existingRes.json();
+  const existingTitles = new Set((existingData.items || []).map((it) => (it.title || '').trim()));
   let ok = 0;
+  let skipped = 0;
   let failed = 0;
   for (const q of list) {
+    const title = (q.title || '').trim();
+    if (title && existingTitles.has(title)) {
+      skipped += 1;
+      msg.textContent = `Import en cours… ${ok + skipped + failed}/${list.length}`;
+      continue;
+    }
     try {
       const res = await fetch('/api/quizquestions', {
         method: 'POST', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(q),
       });
-      if (res.ok) ok += 1; else failed += 1;
+      if (res.ok) { ok += 1; existingTitles.add(title); } else failed += 1;
     } catch (err) {
       failed += 1;
     }
-    msg.textContent = `Import en cours… ${ok + failed}/${list.length}`;
+    msg.textContent = `Import en cours… ${ok + skipped + failed}/${list.length}`;
   }
-  msg.textContent = failed
-    ? `${ok} question(s) importée(s), ${failed} en échec.`
-    : `${ok} question(s) importée(s) avec succès.`;
+  const parts = [`${ok} importée(s)`];
+  if (skipped) parts.push(`${skipped} déjà présente(s) ignorée(s)`);
+  if (failed) parts.push(`${failed} en échec`);
+  msg.textContent = parts.join(', ') + '.';
   msg.style.color = failed ? '#b91c1c' : '#15803d';
+  quizBulkBtn.disabled = false;
   if (ok) {
     input.value = '';
     quizCollection.load();
   }
+});
+
+document.getElementById('quiz-dedupe').addEventListener('click', async () => {
+  const msg = document.getElementById('quiz-bulk-msg');
+  if (!window.confirm('Supprimer les questions en double (meme titre), en ne gardant que la premiere de chaque ? Cette action est irreversible.')) return;
+  msg.style.color = '';
+  msg.textContent = 'Recherche des doublons…';
+  const res = await fetch('/api/content/quizquestions', { credentials: 'same-origin' });
+  const data = await res.json();
+  const items = data.items || [];
+  const seen = new Set();
+  const duplicateIndexes = [];
+  items.forEach((it, index) => {
+    const title = (it.title || '').trim();
+    if (seen.has(title)) duplicateIndexes.push(index); else seen.add(title);
+  });
+  if (!duplicateIndexes.length) {
+    msg.textContent = 'Aucun doublon trouvé.';
+    msg.style.color = '#15803d';
+    return;
+  }
+  // On supprime du plus grand index au plus petit : supprimer un index decale
+  // tous ceux qui suivent, donc il faut partir de la fin de la liste.
+  duplicateIndexes.sort((a, b) => b - a);
+  let removed = 0;
+  for (const index of duplicateIndexes) {
+    const delRes = await fetch(`/api/quizquestions/${index}`, { method: 'DELETE', credentials: 'same-origin' });
+    if (delRes.ok) removed += 1;
+    msg.textContent = `Nettoyage en cours… ${removed}/${duplicateIndexes.length}`;
+  }
+  msg.textContent = `${removed} question(s) en double supprimée(s).`;
+  msg.style.color = '#15803d';
+  quizCollection.load();
 });
 
 async function loadGagnants() {
