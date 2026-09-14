@@ -31,13 +31,14 @@
     if (prefersReducedMotion) {
       videoDone = true;
     } else {
+      video.playbackRate = 1.8; // video source dure ~7s, on l'accelere pour un ecran de chargement plus court
       video.addEventListener('ended', () => { videoDone = true; maybeHide(); });
       video.play().catch(() => { videoDone = true; maybeHide(); });
     }
   }
 
   maybeHide();
-  setTimeout(hide, 8500); // filet de sécurité si le chargement traîne
+  setTimeout(hide, 5000); // filet de securite si le chargement traine
 })();
 
 document.addEventListener('DOMContentLoaded', () => {

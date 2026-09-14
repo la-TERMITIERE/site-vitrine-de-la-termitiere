@@ -30,12 +30,30 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sector-title').textContent = s.name;
   document.getElementById('sector-breadcrumb-name').textContent = s.name;
 
-  if (!s.heroSkip && (s.heroPhoto || (s.photos && s.photos.length))) {
-    const heroPhoto = document.createElement('div');
-    heroPhoto.className = 'sector-hero-photo';
-    heroPhoto.style.backgroundImage = `url('${s.heroPhoto || (s.photosDir + s.photos[0])}')`;
-    document.getElementById('sector-hero').prepend(heroPhoto);
+  if (!s.heroSkip) {
+    const heroImgs = Array.isArray(s.heroPhotos) && s.heroPhotos.length
+      ? s.heroPhotos
+      : (s.heroPhoto ? [s.heroPhoto]
+        : (s.photos && s.photos.length ? [s.photosDir + s.photos[0]] : []));
+    const heroEl = document.getElementById('sector-hero');
+    heroImgs.forEach((src, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'sector-hero-photo' + (i === 0 ? ' active' : '');
+      slide.style.backgroundImage = `url('${src}')`;
+      if (s.heroPosition) slide.style.backgroundPosition = s.heroPosition;
+      heroEl.appendChild(slide);
+    });
+    if (heroImgs.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const slides = heroEl.querySelectorAll('.sector-hero-photo');
+      let cur = 0;
+      setInterval(() => {
+        slides[cur].classList.remove('active');
+        cur = (cur + 1) % slides.length;
+        slides[cur].classList.add('active');
+      }, 5000);
+    }
   }
+
 
   /* ---------- Icônes ---------- */
   const ICONS = {
@@ -72,7 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ---------- Colonne principale ---------- */
-  let mainHtml = `<p class="sector-mission-text">${s.mission}</p>`;
+  let mainHtml = '';
+  if (s.logo) {
+    mainHtml += `<img class="sector-brand-logo" src="${s.logo}" alt="Logo ${s.name}">`;
+  }
+  mainHtml += `<p class="sector-mission-text">${s.mission}</p>`;
   mainHtml += renderCtaButtons(s);
 
   // Médias
