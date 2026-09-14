@@ -1,14 +1,18 @@
 /* =========================================================
    LA TERMITIÈRE — Quiz "Testez vos connaissances"
    Questions chargees depuis data/quizquestions.json (modifiable
-   depuis l'espace de publication). Une question a la fois, avec
-   barre de progression. Score calcule dans le navigateur. Si le
-   score donne droit a un lot, le gain est envoye a publish-proxy
-   (nom, telephone, score) pour que l'equipe puisse le verifier
-   avant de le remettre.
+   depuis l'espace de publication). A chaque partie, les questions
+   et leurs reponses sont tirees dans un ordre different (pour
+   limiter le fait qu'une reponse dictee par un ami reste valable).
+   Chrono global de 2 minutes. Une question a la fois, avec barre
+   de progression. Score calcule dans le navigateur. Si le score
+   donne droit a un lot, le gain est envoye a publish-proxy (nom,
+   telephone, score) pour que l'equipe puisse le verifier avant de
+   le remettre.
    ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
   const PUBLISH_PROXY_ORIGIN = 'https://publier.latermitiere.com';
+  const QUIZ_DURATION_SECONDS = 120; // chrono global du quiz (2 minutes)
 
   const introEl = document.getElementById('quiz-intro');
   const formEl = document.getElementById('quiz-form');
@@ -20,18 +24,86 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextBtn = document.getElementById('quiz-next');
   const progressFill = document.getElementById('quiz-progress-fill');
   const progressLabel = document.getElementById('quiz-progress-label');
+  const timerEl = document.getElementById('quiz-timer');
 
   if (!introEl || !formEl) return;
 
+  let allQuestions = [];
   let questions = [];
   let current = 0;
   let answers = [];
+  let timeLeft = QUIZ_DURATION_SECONDS;
+  let timerInterval = null;
 
   const TIER_ICONS = {
     high: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 4h8v4a4 4 0 01-4 4 4 4 0 01-4-4V4z"/><path d="M8 5H4a3 3 0 003 3M16 5h4a3 3 0 01-3 3"/><path d="M12 12v3M9 19h6M10 19v-2.5M14 19v-2.5"/></svg>',
     mid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l2.6 5.6 6.1.6-4.6 4.2 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.2 6.1-.6L12 3z"/></svg>',
     low: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.5.4.8 1 .8 1.6V16h5.4v-.5c0-.6.3-1.2.8-1.6A6 6 0 0012 3z"/></svg>',
   };
+
+  /* ---------- Melange des questions et des reponses a chaque partie ---------- */
+  function shuffleArray(arr) {
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+  }
+
+  function shuffleQuestionOptions(q) {
+    const letters = ['A', 'B', 'C', 'D'];
+    const opts = shuffleArray(letters.map((letter) => ({
+      text: q['option' + letter],
+      wasCorrect: letter === q.correct,
+    })));
+    const shuffled = { title: q.title };
+    let correct = null;
+    opts.forEach((opt, i) => {
+      shuffled['option' + letters[i]] = opt.text;
+      if (opt.wasCorrect) correct = letters[i];
+    });
+    shuffled.correct = correct;
+    return shuffled;
+  }
+
+  function buildSessionQuestions() {
+    return shuffleArray(allQuestions).map(shuffleQuestionOptions);
+  }
+
+  /* ---------- Chrono global ---------- */
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function updateTimerDisplay() {
+    if (!timerEl) return;
+    timerEl.textContent = formatTime(Math.max(0, timeLeft));
+    timerEl.classList.toggle('quiz-timer--low', timeLeft <= 20);
+  }
+
+  function startTimer() {
+    stopTimer();
+    timeLeft = QUIZ_DURATION_SECONDS;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      timeLeft -= 1;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        stopTimer();
+        showResult();
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
 
   function renderCurrentQuestion() {
     const total = questions.length;
@@ -81,11 +153,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch('data/quizquestions.json', { cache: 'no-store' });
       const data = await res.json();
-      questions = data.items || [];
+      allQuestions = data.items || [];
     } catch (err) {
-      questions = [];
+      allQuestions = [];
     }
-    if (!questions.length) {
+    if (!allQuestions.length) {
       startBtn.disabled = true;
       startBtn.textContent = 'Quiz momentanément indisponible';
     }
@@ -121,11 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   startBtn.addEventListener('click', () => {
-    if (!questions.length) return;
+    if (!allQuestions.length) return;
     resetQuizState();
+    questions = buildSessionQuestions();
     renderCurrentQuestion();
     introEl.hidden = true;
     formEl.hidden = false;
+    startTimer();
     window.scrollTo({ top: formEl.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
   });
 
@@ -146,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function showResult() {
+    stopTimer();
     let score = 0;
     questions.forEach((q, index) => {
       if (answers[index] === q.correct) score += 1;
@@ -231,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   restartBtn.addEventListener('click', () => {
+    stopTimer();
     resetQuizState();
     formEl.hidden = true;
     resultEl.hidden = true;

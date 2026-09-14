@@ -31,6 +31,13 @@
   .quiz-progress-track{ flex:1; height:8px; border-radius:99px; background:var(--border); overflow:hidden; }
   .quiz-progress-fill{ height:100%; width:0%; border-radius:99px; background:linear-gradient(90deg, var(--red), var(--gold)); transition:width .35s ease; }
   .quiz-progress-label{ font-size:.8rem; font-weight:700; color:var(--accent); white-space:nowrap; }
+  .quiz-timer{
+    display:inline-flex; align-items:center; gap:5px; font-size:.8rem; font-weight:700; white-space:nowrap;
+    color:var(--text-muted); background:var(--bg-alt); border:1px solid var(--border); border-radius:99px; padding:5px 12px;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .quiz-timer--low{ color:var(--red); border-color:var(--red); animation:quiz-timer-pulse 1s ease-in-out infinite; }
+  @keyframes quiz-timer-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
   .quiz-promo-time{ display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:.82rem; margin:14px 0 0; }
 
   /* ---- carte question (une à la fois) ---- */
@@ -177,6 +184,10 @@
         <div class="quiz-progress-wrap">
           <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
           <span class="quiz-progress-label" id="quiz-progress-label">Question 1 / 12</span>
+          <span class="quiz-timer" id="quiz-timer" title="Temps restant">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            2:00
+          </span>
         </div>
         <div id="quiz-questions"></div>
         <div class="quiz-nav">

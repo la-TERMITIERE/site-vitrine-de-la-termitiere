@@ -477,6 +477,20 @@ app.post('/api/quiz-entries', (req, res) => {
   }
 
   try {
+    // Detection de doublon : meme telephone (8 derniers chiffres) ou meme nom
+    // deja present parmi les gagnants precedents -> on enregistre quand meme
+    // (pour ne pas bloquer a tort un homonyme), mais on marque l'entree pour
+    // que l'equipe la remarque avant de remettre un second lot.
+    const normalizePhone = (p) => String(p || '').replace(/\D/g, '').slice(-8);
+    const normalizeName = (n) => String(n || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    const data = readJsonFile(QUIZ_ENTRIES_PATH);
+    const normPhone = normalizePhone(phone);
+    const normName = normalizeName(name);
+    const isDuplicate = data.items.some((it) => (
+      (normPhone && normalizePhone(it.phone) === normPhone)
+      || (normName && normalizeName(it.name) === normName)
+    ));
+
     const entry = cleanItem({
       name,
       phone,
@@ -484,12 +498,12 @@ app.post('/api/quiz-entries', (req, res) => {
       total,
       prizeLabel,
       claimed: false,
+      duplicate: isDuplicate,
       date: new Date().toISOString(),
     });
-    const data = readJsonFile(QUIZ_ENTRIES_PATH);
     data.items.unshift(entry);
     writeJsonFile(QUIZ_ENTRIES_PATH, data);
-    console.log(`Quiz : nouveau resultat enregistre pour "${name}" (${score}/${total})`);
+    console.log(`Quiz : nouveau resultat enregistre pour "${name}" (${score}/${total})${isDuplicate ? ' [DOUBLON POSSIBLE]' : ''}`);
     res.json({ ok: true });
   } catch (err) {
     console.error('Erreur enregistrement resultat quiz:', err);

@@ -481,8 +481,11 @@ async function loadGagnants() {
     items.forEach((item, index) => {
       const el = document.createElement('div');
       el.className = 'item-card';
+      const duplicateBadge = item.duplicate
+        ? ' <span style="display:inline-block; background:#fde68a; color:#7c4a03; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:20px; vertical-align:middle;">⚠ Possible doublon</span>'
+        : '';
       el.innerHTML = `
-        <div class="item-title">${item.name} — ${item.score}/${item.total}</div>
+        <div class="item-title">${item.name} — ${item.score}/${item.total}${duplicateBadge}</div>
         <div class="item-meta">${item.phone} · ${item.prizeLabel || 'Sans lot'} · ${formatDateFr(item.date)}</div>
         <div class="item-actions">
           <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; color:var(--text);">
