@@ -13,6 +13,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const PUBLISH_PROXY_ORIGIN = 'https://publier.latermitiere.com';
   const QUIZ_DURATION_SECONDS = 120; // chrono global du quiz (2 minutes)
+  const QUESTIONS_PER_ROUND = 12; // nombre de questions tirees parmi la banque a chaque partie
 
   const introEl = document.getElementById('quiz-intro');
   const formEl = document.getElementById('quiz-form');
@@ -68,7 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function buildSessionQuestions() {
-    return shuffleArray(allQuestions).map(shuffleQuestionOptions);
+    const count = Math.min(QUESTIONS_PER_ROUND, allQuestions.length);
+    return shuffleArray(allQuestions).slice(0, count).map(shuffleQuestionOptions);
   }
 
   /* ---------- Chrono global ---------- */

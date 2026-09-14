@@ -181,6 +181,18 @@
         </form>
       </div>
 
+      <div class="card">
+        <p class="sub" style="margin:0 0 10px;">
+          Import en masse : colle une liste de questions au format JSON ci-dessous pour en
+          ajouter plusieurs d'un coup, sans repasser par le formulaire pour chacune.
+        </p>
+        <textarea id="quiz-bulk-input" rows="6" placeholder='[
+  {"title":"...","optionA":"...","optionB":"...","optionC":"...","optionD":"...","correct":"A"}
+]'></textarea>
+        <button class="btn-primary" type="button" id="quiz-bulk-submit" style="margin-top:10px;">Importer ces questions</button>
+        <div id="quiz-bulk-msg" class="msg"></div>
+      </div>
+
       <h2>Questions du quiz</h2>
       <div id="quiz-list"></div>
     </div>
@@ -459,6 +471,49 @@ const quizCollection = createCollection({
   fields: ['title', 'optionA', 'optionB', 'optionC', 'optionD', 'correct'],
   createLabel: 'Ajouter la question', editLabel: 'Enregistrer les modifications',
   summary: (item) => `A. ${item.optionA} · B. ${item.optionB} · C. ${item.optionC} · D. ${item.optionD} — bonne réponse : ${item.correct}`,
+});
+
+document.getElementById('quiz-bulk-submit').addEventListener('click', async () => {
+  const input = document.getElementById('quiz-bulk-input');
+  const msg = document.getElementById('quiz-bulk-msg');
+  let list;
+  try {
+    list = JSON.parse(input.value);
+    if (!Array.isArray(list)) throw new Error('not-array');
+  } catch (err) {
+    msg.textContent = 'JSON invalide : vérifie que tu as bien collé une liste [ ... ].';
+    msg.style.color = '#b91c1c';
+    return;
+  }
+  if (!list.length) {
+    msg.textContent = 'La liste est vide.';
+    msg.style.color = '#b91c1c';
+    return;
+  }
+  msg.style.color = '';
+  let ok = 0;
+  let failed = 0;
+  for (const q of list) {
+    try {
+      const res = await fetch('/api/quizquestions', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(q),
+      });
+      if (res.ok) ok += 1; else failed += 1;
+    } catch (err) {
+      failed += 1;
+    }
+    msg.textContent = `Import en cours… ${ok + failed}/${list.length}`;
+  }
+  msg.textContent = failed
+    ? `${ok} question(s) importée(s), ${failed} en échec.`
+    : `${ok} question(s) importée(s) avec succès.`;
+  msg.style.color = failed ? '#b91c1c' : '#15803d';
+  if (ok) {
+    input.value = '';
+    quizCollection.load();
+  }
 });
 
 async function loadGagnants() {
