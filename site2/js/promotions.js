@@ -33,12 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'promo-card';
         if (sector) card.style.setProperty('--accent', sector.color);
         card.innerHTML = `
-          ${promo.photo ? `<img class="promo-card-photo" src="${promo.photo}" alt="${promo.title}">` : ''}
-          ${sector ? `<span class="promo-card-tag">${sector.name}</span>` : ''}
-          <h3>${promo.title}</h3>
-          ${promo.description ? `<p>${promo.description}</p>` : ''}
-          ${promo.validUntil ? `<p class="promo-card-valid">Valable jusqu'au ${formatDateFr(promo.validUntil)}</p>` : ''}
-          <a href="contact.html" class="btn btn-primary">En profiter</a>`;
+          ${promo.photo
+            ? `<img class="promo-card-photo" src="${promo.photo}" alt="${promo.title}">`
+            : `<div class="promo-card-cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg></div>`}
+          <div class="promo-card-body">
+            ${sector ? `<span class="promo-card-tag">${sector.name}</span>` : ''}
+            <h3>${promo.title}</h3>
+            ${promo.description ? `<p>${promo.description}</p>` : ''}
+            ${promo.validUntil ? `<p class="promo-card-valid">Valable jusqu'au ${formatDateFr(promo.validUntil)}</p>` : ''}
+            <a href="contact.html" class="btn btn-primary">En profiter</a>
+          </div>`;
         grid.appendChild(card);
       });
     })

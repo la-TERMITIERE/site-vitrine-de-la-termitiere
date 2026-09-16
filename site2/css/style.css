@@ -347,7 +347,7 @@ section{ padding:96px 0; }
   position:relative; overflow:hidden;
 }
 @media (max-width:700px){ .photo-strip{ height:200px; } }
-.photo-strip--tall{ height:720px; background-size:contain; background-repeat:no-repeat; background-color:var(--ink); }
+.photo-strip--tall{ height:720px; }
 @media (max-width:900px){ .photo-strip--tall{ height:560px; } }
 @media (max-width:700px){ .photo-strip--tall{ height:420px; } }
 
@@ -810,38 +810,46 @@ table.price-table tr:last-child td{ border-bottom:none; }
 }
 @media (max-width:640px){ .carrieres-photo-banner{ aspect-ratio:4/3; } }
 
-/* ---------- Page Équipe ---------- */
-.values-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
-.value-card{
-  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md);
-  padding:28px 22px; text-align:center; box-shadow:var(--shadow-sm);
+/* ---------- Cartes vives en degrade ("punch cards") : Equipe / Carrieres / Promotions ---------- */
+.punch-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.punch-grid--4{ grid-template-columns:repeat(4,1fr); }
+.punch-card{
+  --a1: var(--red); --a2: var(--red-dark);
+  position:relative; overflow:hidden; border-radius:22px; padding:30px 26px;
+  min-height:200px; color:#fff; background:linear-gradient(135deg, var(--a1), var(--a2));
+  box-shadow:0 12px 26px -10px rgba(0,0,0,.4);
+  display:flex; flex-direction:column; align-items:flex-start;
+  transition:transform .35s cubic-bezier(.22,.85,.32,1.1), box-shadow .35s ease;
 }
-.value-icon{
-  width:52px; height:52px; border-radius:50%; background:var(--red); color:#fff;
-  display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+.punch-card:hover{ transform:translateY(-8px) scale(1.015); box-shadow:0 20px 38px -10px rgba(0,0,0,.45); }
+.punch-card::before{
+  content:""; position:absolute; width:170px; height:170px; border-radius:50%;
+  background:rgba(255,255,255,.14); top:-70px; right:-60px; transition:transform .5s ease; pointer-events:none;
 }
-.value-icon svg{ width:24px; height:24px; }
-.value-card h4{ font-size:1.05rem; margin-bottom:8px; }
-.value-card p{ color:var(--text-muted); font-size:.9rem; margin:0; }
+.punch-card::after{
+  content:""; position:absolute; width:110px; height:110px; border-radius:50%;
+  background:rgba(255,255,255,.08); bottom:-55px; left:-30px; pointer-events:none;
+}
+.punch-card:hover::before{ transform:scale(1.25) translate(-6px,6px); }
+.punch-card-icon{
+  position:relative; z-index:1; width:54px; height:54px; border-radius:16px;
+  background:rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+  transition:transform .35s ease, border-radius .35s ease;
+}
+.punch-card:hover .punch-card-icon{ transform:rotate(-8deg) scale(1.1); border-radius:50%; }
+.punch-card-icon svg{ width:26px; height:26px; color:#fff; }
+.punch-card h4{ position:relative; z-index:1; color:#fff; font-size:1.05rem; margin:0 0 8px; }
+.punch-card p{ position:relative; z-index:1; color:rgba(255,255,255,.9); font-size:.88rem; line-height:1.5; margin:0; }
 
-.value-card--accent{
-  --accent: var(--red);
-  position:relative; overflow:hidden;
-  border-top:4px solid var(--accent);
-  transition:transform .25s ease, box-shadow .25s ease;
-}
-.value-card--accent::before{
-  content:""; position:absolute; top:-46px; right:-46px; width:130px; height:130px;
-  background:var(--accent); opacity:.09; border-radius:50%; z-index:0; pointer-events:none;
-}
-.value-card--accent::after{
-  content:""; position:absolute; bottom:-50px; left:-50px; width:100px; height:100px;
-  background:var(--accent); opacity:.06; border-radius:50%; z-index:0; pointer-events:none;
-}
-.value-card--accent > *{ position:relative; z-index:1; }
-.value-card--accent:hover{ transform:translateY(-6px); box-shadow:var(--shadow-lg); }
-.value-card--accent .value-icon{ width:58px; height:58px; background:var(--accent); }
-.value-card--accent .value-icon svg{ width:26px; height:26px; }
+/* Variantes limitees aux couleurs de marque deja utilisees sur le site (rouge + encre) */
+.punch-card--c1{ --a1:var(--red-light); --a2:var(--red); }
+.punch-card--c2{ --a1:var(--red); --a2:var(--red-dark); }
+.punch-card--c3{ --a1:#3a3436; --a2:#171314; }
+.punch-card--c4{ --a1:var(--red-dark); --a2:#4a120b; }
+
+@media (max-width:900px){ .punch-grid, .punch-grid--4{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:560px){ .punch-grid, .punch-grid--4{ grid-template-columns:1fr; } .punch-card{ min-height:0; } }
 
 /* ---------- Grille de valeurs, cartes espacees et animees (page A propos) ---------- */
 .value-bands{
@@ -866,7 +874,7 @@ table.price-table tr:last-child td{ border-bottom:none; }
 .value-band--light{ background:var(--bg-alt); color:var(--ink); }
 .value-band--accent{ background:var(--red); color:#fff; }
 .value-band--accent::before{ opacity:.1; }
-.value-band--dark{ background:var(--ink); color:#fff; }
+.value-band--dark{ background:#231f20; color:#fff; }
 .value-band--dark::before{ opacity:.08; }
 .value-band-icon{
   position:relative; z-index:1;
@@ -885,16 +893,25 @@ table.price-table tr:last-child td{ border-bottom:none; }
   .value-band{ min-height:0; padding:24px; }
 }
 
-.carrieres-values-grid{ grid-template-columns:repeat(4,1fr); }
-@media (max-width:980px){ .carrieres-values-grid{ grid-template-columns:repeat(2,1fr); } }
-@media (max-width:560px){ .carrieres-values-grid{ grid-template-columns:1fr; } }
-
-.team-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:20px; }
+.team-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; margin-top:20px; }
 .team-member-card{
   --accent:#BD3C2F;
-  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md);
-  padding:28px 22px; text-align:center; box-shadow:var(--shadow-sm);
+  position:relative; overflow:hidden;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:20px;
+  padding:0 22px 28px; text-align:center; box-shadow:var(--shadow-sm);
+  transition:transform .35s cubic-bezier(.22,.85,.32,1.05), box-shadow .35s ease;
 }
+.team-member-card::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:92px;
+  background-color:var(--accent);
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.2) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(255,255,255,.2) 25%, transparent 25%);
+  background-size:30px 30px;
+  pointer-events:none;
+}
+.team-member-card:hover{ transform:translateY(-8px); box-shadow:0 18px 34px -10px rgba(0,0,0,.28); }
+.team-member-card > *{ position:relative; z-index:1; }
 .leader-section {
   display: flex;
   align-items: stretch;
@@ -993,9 +1010,12 @@ table.price-table tr:last-child td{ border-bottom:none; }
   }
 }
 .team-member-avatar{
-  width:72px; height:72px; border-radius:50%; background:var(--bg-alt); border:2px solid var(--accent);
-  display:flex; align-items:center; justify-content:center; margin:0 auto 16px; padding:12px;
+  width:88px; height:88px; border-radius:50%; background:var(--bg-card); border:4px solid var(--bg-card);
+  box-shadow:0 6px 16px rgba(0,0,0,.2);
+  display:flex; align-items:center; justify-content:center; margin:46px auto 16px; padding:12px;
+  transition:transform .35s ease;
 }
+.team-member-card:hover .team-member-avatar{ transform:scale(1.08) rotate(-4deg); }
 .team-member-avatar img{ max-width:100%; max-height:100%; object-fit:contain; }
 .team-member-avatar--photo{ width:120px; height:120px; padding:0; overflow:hidden; }
 .team-member-avatar--photo img{ width:100%; height:100%; max-width:none; max-height:none; object-fit:cover; }
@@ -1027,26 +1047,42 @@ table.price-table tr:last-child td{ border-bottom:none; }
 /* =========================================================
    PAGES PROMOTIONS & CARRIÈRES
    ========================================================= */
-.promotions-grid, .offres-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:22px; margin-top:20px; }
+.promotions-grid, .offres-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:24px; margin-top:20px; }
 
 .promo-card, .offre-card{
   --accent: var(--red);
-  background:var(--bg-card); border:1px solid var(--border); border-left:4px solid var(--accent);
-  border-radius:var(--radius-md); padding:26px; box-shadow:var(--shadow-sm);
+  position:relative; overflow:hidden;
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:20px; box-shadow:var(--shadow-sm);
   display:flex; flex-direction:column; align-items:flex-start;
+  transition:transform .35s cubic-bezier(.22,.85,.32,1.05), box-shadow .35s ease;
 }
+.promo-card:hover, .offre-card:hover{ transform:translateY(-8px); box-shadow:0 18px 36px -12px rgba(0,0,0,.3); }
 .promo-card-photo, .offre-card-photo{
-  width:calc(100% + 52px); margin:-26px -26px 16px; display:block;
-  aspect-ratio:16/10; object-fit:cover; border-radius:var(--radius-md) var(--radius-md) 0 0;
+  width:100%; margin:0; display:block;
+  aspect-ratio:16/10; object-fit:cover;
 }
+.promo-card-cover, .offre-card-cover{
+  position:relative; overflow:hidden; width:100%; aspect-ratio:16/9;
+  background:linear-gradient(135deg, var(--accent), rgba(0,0,0,.3));
+  display:flex; align-items:center; justify-content:center;
+}
+.promo-card-cover::after, .offre-card-cover::after{
+  content:""; position:absolute; width:130px; height:130px; border-radius:50%;
+  background:rgba(255,255,255,.12); top:-50px; right:-40px; pointer-events:none;
+}
+.promo-card-cover svg, .offre-card-cover svg{ position:relative; z-index:1; width:44px; height:44px; color:#fff; opacity:.95; }
+.promo-card:hover .promo-card-cover svg, .offre-card:hover .offre-card-cover svg{ transform:scale(1.1) rotate(-6deg); }
+.promo-card-cover svg, .offre-card-cover svg{ transition:transform .35s ease; }
+.promo-card-body, .offre-card-body{ padding:22px 24px 24px; display:flex; flex-direction:column; align-items:flex-start; width:100%; flex:1; }
 .promo-card h3, .offre-card h3{ font-size:1.15rem; margin:8px 0 8px; }
 .promo-card p, .offre-card p{ color:var(--text-muted); font-size:.92rem; margin:0 0 14px; }
 .promo-card .btn, .offre-card .btn{ margin-top:auto; }
 
 .promo-card-tag, .offre-card-tag{
   display:inline-block; font-family:var(--font-display); font-weight:600; font-size:.72rem;
-  text-transform:uppercase; letter-spacing:.05em; color:var(--accent);
-  background:var(--bg-alt); border:1px solid var(--accent); border-radius:20px; padding:4px 12px;
+  text-transform:uppercase; letter-spacing:.05em; color:#fff;
+  background:var(--accent); border-radius:20px; padding:4px 12px;
 }
 .promo-card-valid{ font-size:.82rem; color:var(--accent); font-weight:600; }
 

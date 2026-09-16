@@ -35,16 +35,20 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'offre-card';
         if (sector) card.style.setProperty('--accent', sector.color);
         card.innerHTML = `
-          ${offre.photo ? `<img class="offre-card-photo" src="${offre.photo}" alt="${offre.title}">` : ''}
-          <div class="offre-card-head">
-            <span class="offre-card-type">${offre.type}</span>
-            ${sector ? `<span class="offre-card-tag">${sector.name}</span>` : ''}
-          </div>
-          <h3>${offre.title}</h3>
-          ${offre.location ? `<p class="offre-card-location">${offre.location}</p>` : ''}
-          ${offre.description ? `<p>${offre.description}</p>` : ''}
-          ${offre.dateLimite ? `<p class="offre-card-deadline">Candidatures jusqu'au ${formatDateFr(offre.dateLimite)}</p>` : ''}
-          <a class="btn btn-primary" href="mailto:latermitiere2021@gmail.com?subject=${mailSubject}&body=${mailBody}">Postuler</a>`;
+          ${offre.photo
+            ? `<img class="offre-card-photo" src="${offre.photo}" alt="${offre.title}">`
+            : `<div class="offre-card-cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16v13H4z"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"/><path d="M4 12h16"/></svg></div>`}
+          <div class="offre-card-body">
+            <div class="offre-card-head">
+              <span class="offre-card-type">${offre.type}</span>
+              ${sector ? `<span class="offre-card-tag">${sector.name}</span>` : ''}
+            </div>
+            <h3>${offre.title}</h3>
+            ${offre.location ? `<p class="offre-card-location">${offre.location}</p>` : ''}
+            ${offre.description ? `<p>${offre.description}</p>` : ''}
+            ${offre.dateLimite ? `<p class="offre-card-deadline">Candidatures jusqu'au ${formatDateFr(offre.dateLimite)}</p>` : ''}
+            <a class="btn btn-primary" href="mailto:latermitiere2021@gmail.com?subject=${mailSubject}&body=${mailBody}">Postuler</a>
+          </div>`;
         grid.appendChild(card);
       });
     })
