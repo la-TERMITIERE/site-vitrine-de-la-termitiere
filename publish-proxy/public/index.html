@@ -495,39 +495,50 @@ quizBulkBtn.addEventListener('click', async () => {
   quizBulkBtn.disabled = true;
   msg.style.color = '';
   // Import "idempotent" : si une question a deja exactement ce titre (import
-  // relance par erreur, double-clic...), on la saute plutot que de la dupliquer.
+  // relance par erreur, double-clic...), on met a jour l'entree existante
+  // (ses reponses/categorie) au lieu de la dupliquer.
   const existingRes = await fetch('/api/content/quizquestions', { credentials: 'same-origin', cache: 'no-store' });
   const existingData = await existingRes.json();
-  const existingTitles = new Set((existingData.items || []).map((it) => (it.title || '').trim()));
-  let ok = 0;
-  let skipped = 0;
+  const existingIndexByTitle = new Map();
+  (existingData.items || []).forEach((it, index) => {
+    const t = (it.title || '').trim();
+    if (t && !existingIndexByTitle.has(t)) existingIndexByTitle.set(t, index);
+  });
+  let created = 0;
+  let updated = 0;
   let failed = 0;
   for (const q of list) {
     const title = (q.title || '').trim();
-    if (title && existingTitles.has(title)) {
-      skipped += 1;
-      msg.textContent = `Import en cours… ${ok + skipped + failed}/${list.length}`;
-      continue;
-    }
+    const existingIndex = title ? existingIndexByTitle.get(title) : undefined;
     try {
-      const res = await fetch('/api/quizquestions', {
-        method: 'POST', credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(q),
-      });
-      if (res.ok) { ok += 1; existingTitles.add(title); } else failed += 1;
+      if (existingIndex !== undefined) {
+        const res = await fetch(`/api/quizquestions/${existingIndex}`, {
+          method: 'PUT', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(q),
+        });
+        if (res.ok) updated += 1; else failed += 1;
+      } else {
+        const res = await fetch('/api/quizquestions', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(q),
+        });
+        if (res.ok) { created += 1; if (title) existingIndexByTitle.set(title, -1); } else failed += 1;
+      }
     } catch (err) {
       failed += 1;
     }
-    msg.textContent = `Import en cours… ${ok + skipped + failed}/${list.length}`;
+    msg.textContent = `Import en cours… ${created + updated + failed}/${list.length}`;
   }
-  const parts = [`${ok} importée(s)`];
-  if (skipped) parts.push(`${skipped} déjà présente(s) ignorée(s)`);
+  const parts = [];
+  if (created) parts.push(`${created} ajoutée(s)`);
+  if (updated) parts.push(`${updated} mise(s) à jour`);
   if (failed) parts.push(`${failed} en échec`);
-  msg.textContent = parts.join(', ') + '.';
+  msg.textContent = (parts.join(', ') || 'Rien à importer') + '.';
   msg.style.color = failed ? '#b91c1c' : '#15803d';
   quizBulkBtn.disabled = false;
-  if (ok) {
+  if (created || updated) {
     input.value = '';
     quizCollection.load();
   }

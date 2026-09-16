@@ -68,9 +68,35 @@ document.addEventListener('DOMContentLoaded', () => {
     return shuffled;
   }
 
+  // Regroupe les questions qui se ressemblent trop (meme "category", ex :
+  // "Qui est responsable de ... ?" repete pour chaque secteur) afin qu'une
+  // meme partie n'en tire jamais deux du meme groupe tant que d'autres
+  // groupes n'ont pas ete puises. Les questions sans categorie forment
+  // chacune leur propre groupe (jamais regroupees entre elles).
   function buildSessionQuestions() {
+    const groupMap = new Map();
+    allQuestions.forEach((q, i) => {
+      const key = (q.category && String(q.category).trim()) || `__single_${i}`;
+      if (!groupMap.has(key)) groupMap.set(key, []);
+      groupMap.get(key).push(q);
+    });
+    const groups = shuffleArray(Array.from(groupMap.values())).map((g) => shuffleArray(g));
     const count = Math.min(QUESTIONS_PER_ROUND, allQuestions.length);
-    return shuffleArray(allQuestions).slice(0, count).map(shuffleQuestionOptions);
+    const picked = [];
+    let round = 0;
+    while (picked.length < count) {
+      let addedAny = false;
+      for (const group of groups) {
+        if (picked.length >= count) break;
+        if (round < group.length) {
+          picked.push(group[round]);
+          addedAny = true;
+        }
+      }
+      if (!addedAny) break;
+      round += 1;
+    }
+    return shuffleArray(picked).map(shuffleQuestionOptions);
   }
 
   /* ---------- Chrono global ---------- */

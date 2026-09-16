@@ -82,7 +82,10 @@ const COLLECTIONS = {
   },
   quizquestions: {
     path: QUIZ_QUESTIONS_PATH, cacheKey: 'quizquestions', label: 'question',
-    fields: ['title', 'optionA', 'optionB', 'optionC', 'optionD', 'correct'],
+    // "category" (facultatif) regroupe les questions qui se ressemblent trop
+    // (ex : "Qui est responsable de ... ?" repete pour chaque secteur) afin
+    // qu'une meme partie n'en tire jamais deux du meme groupe a la fois.
+    fields: ['title', 'optionA', 'optionB', 'optionC', 'optionD', 'correct', 'category'],
     requiredFields: ['title', 'optionA', 'optionB', 'optionC', 'optionD', 'correct'], hasPhoto: false,
   },
 };
