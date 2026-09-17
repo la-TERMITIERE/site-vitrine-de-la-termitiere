@@ -13,7 +13,7 @@ const SECTORS = {
     name: "Maxi Gym",
     tagline: "Sport & santé",
     letter: "A",
-    manager: { name: "MASSINA INO", title: "Responsable", photo: "images/equipe/responsable_maxi_gym.png" },
+    manager: { name: "MASSINA INO", title: "DS (Directeur Superviseur) Kara et Responsable", photo: "images/equipe/responsable_maxi_gym.png" },
     cardText: "Coaching, rééducation et remise en forme, avec ou sans accompagnement personnalisé.",
     mission: "Maxi Gym, la salle de sport de La Termitière à Lomé et à Kara, au Togo, a pour mission d'accompagner chaque individu, quel que soit son profil, vers un mieux-être physique et durable. À travers un suivi personnalisé par des coachs professionnels ou en accès libre, nous combinons sport, remise en forme et rééducation pour vous aider à atteindre vos objectifs de santé et de performance.",
     services: [
@@ -89,7 +89,7 @@ const SECTORS = {
     name: "La Briqueterie",
     tagline: "Matériaux de construction",
     letter: "B",
-    manager: { name: "Malam Rassoulou", title: "DS (Directeur Superviseur) et Responsable", photo: "images/equipe/responsable_briqueterie.png" },
+    manager: { name: "Malam Rassoulou", title: "DS (Directeur Superviseur) Lomé et Responsable", photo: "images/equipe/responsable_briqueterie.png" },
     cardText: "Production de briques et location de matériel de chantier, transport inclus sur demande.",
     mission: "La Briqueterie de La Termitière, à Lomé et à Kara, au Togo, acteur clé du BTP et de la construction, a pour mission de fournir des matériaux de haute qualité pour concrétiser tous vos projets immobiliers. De la production de briques robustes à la location de matériel de chantier professionnel, nous accompagnons professionnels et particuliers avec des solutions clé en main, transport inclus.",
     services: [
@@ -213,7 +213,7 @@ const SECTORS = {
     name: "Maxi Agro",
     tagline: "Élevage et agriculture",
     letter: "D",
-    manager: { name: "EDAH Josué ", title: "Responsable", photo: "" },
+    manager: { name: "AROUNA P'man-esso", title: "Responsable", photo: "" },
     cardText: "Élevage de précision et productions agricoles, en autosuffisance alimentaire totale.",
     mission: "Maxi Agro, la ferme agro-pastorale de La Termitière située à Agbélouvé (préfecture du Zio, Togo), assure une production agropastorale autonome et performante. Maxi Agro se donne pour mission d'élever et de fournir au marché des animaux de races sélectionnées et adaptées aux préférences de nos clients. En nous appuyant sur une agriculture interne dédiée à l'alimentation de notre cheptel, nous visons une autosuffisance totale pour garantir la qualité constante de nos élevages, sans dépendance extérieure.",
     services: [
@@ -301,7 +301,7 @@ const SECTORS = {
     name: "Maxi Logistique",
     tagline: "Prestations événementielles",
     letter: "F",
-    manager: { name: "KPENIATCHE Moudiatou", title: "Responsable", photo: "images/equipe/responsable-logistique.png" },
+    manager: { name: "MASSINA INO", title: "DS (Directeur Superviseur) Kara et Responsable", photo: "images/equipe/responsable_maxi_gym.png" },
     cardText: "Installation de tente et espace VIP, décoration, tables et chaises, gazon, sono et animation pour vos événements.",
     comingSoon: false,
     mission: "Maxi Logistique, le pôle logistique et événementiel de La Termitière au Togo, prend en charge l'organisation matérielle de vos événements, de l'installation à l'animation : tentes et espace VIP, décoration, mobilier, gazon synthétique et sonorisation, pour un rendu clé en main à Kara, Sokodé et Lomé.",

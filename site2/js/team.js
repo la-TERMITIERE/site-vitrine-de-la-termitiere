@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
       ? `
         <div class="team-member-avatar${s.manager.photo ? ' team-member-avatar--photo' : ''}">${s.manager.photo ? `<img src="${s.manager.photo}" alt="${s.manager.name}">` : logo}</div>
         <h4>${s.manager.name}</h4>
-        <p>${s.manager.title}, ${s.name}</p>`
+        <p>${s.manager.title} de ${s.name}</p>`
       : `
         <div class="team-member-avatar">${logo}</div>
-        <h4>Responsable ${s.name}</h4>
+        <h4>Responsable de ${s.name}</h4>
         <p>Nom et présentation à venir</p>`;
     grid.appendChild(card);
   });
