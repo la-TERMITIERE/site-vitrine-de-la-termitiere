@@ -20,10 +20,10 @@ permissions:
   packages: write
 
 env:
-  VITRINE_IMAGE: ghcr.io/marthesok/site-vitrine-de-la-termitiere
-  CONTACT_IMAGE: ghcr.io/marthesok/termitiere-contact-proxy
-  OAUTH_IMAGE: ghcr.io/marthesok/termitiere-oauth-proxy
-  PUBLISH_IMAGE: ghcr.io/marthesok/termitiere-publish-proxy
+  VITRINE_IMAGE: ghcr.io/la-termitiere/site-vitrine-de-la-termitiere
+  CONTACT_IMAGE: ghcr.io/la-termitiere/termitiere-contact-proxy
+  OAUTH_IMAGE: ghcr.io/la-termitiere/termitiere-oauth-proxy
+  PUBLISH_IMAGE: ghcr.io/la-termitiere/termitiere-publish-proxy
 
 
 # ============================================================
@@ -54,7 +54,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: marthesok
+          username: la-termitiere
           password: ${{ secrets.GITHUB_TOKEN }}
 
 
@@ -235,7 +235,7 @@ jobs:
 
             echo "$GHCR_TOKEN" | \
               docker login ghcr.io \
-              -u "marthesok" \
+              -u "la-termitiere" \
               --password-stdin
 
             echo "GHCR login successful."
@@ -272,10 +272,10 @@ jobs:
               TAG="$1"
 
               cat > deploy/.env.deploy <<EOF
-            VITRINE_IMAGE=ghcr.io/marthesok/site-vitrine-de-la-termitiere:${TAG}
-            CONTACT_PROXY_IMAGE=ghcr.io/marthesok/termitiere-contact-proxy:${TAG}
-            OAUTH_PROXY_IMAGE=ghcr.io/marthesok/termitiere-oauth-proxy:${TAG}
-            PUBLISH_PROXY_IMAGE=ghcr.io/marthesok/termitiere-publish-proxy:${TAG}
+            VITRINE_IMAGE=ghcr.io/la-termitiere/site-vitrine-de-la-termitiere:${TAG}
+            CONTACT_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-contact-proxy:${TAG}
+            OAUTH_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-oauth-proxy:${TAG}
+            PUBLISH_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-publish-proxy:${TAG}
 
             DOMAIN_SITE=latermitiere.com
             DOMAIN_CONTACT=contact.latermitiere.com
