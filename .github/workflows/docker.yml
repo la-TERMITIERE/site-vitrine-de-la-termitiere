@@ -1,9 +1,10 @@
-name: Build & Deploy Site Vitrine
+name: Build, Push & Deploy — La Termitière
 
 on:
   push:
     branches:
       - docker-deployment
+  workflow_dispatch:
 
 # Une seule execution du deploiement a la fois : si plusieurs publications
 # (offres/promotions) arrivent d'affilee, les workflows suivants attendent
@@ -13,111 +14,165 @@ concurrency:
   group: deploy-vitrine
   cancel-in-progress: false
 
+
 permissions:
   contents: read
   packages: write
 
 env:
-  OWNER: marthesok
+  VITRINE_IMAGE: ghcr.io/la-termitiere/site-vitrine-de-la-termitiere
+  CONTACT_IMAGE: ghcr.io/la-termitiere/termitiere-contact-proxy
+  OAUTH_IMAGE: ghcr.io/la-termitiere/termitiere-oauth-proxy
+  PUBLISH_IMAGE: ghcr.io/la-termitiere/termitiere-publish-proxy
 
-  VITRINE_IMAGE: ghcr.io/marthesok/site-vitrine-de-la-termitiere
-  CONTACT_IMAGE: ghcr.io/marthesok/termitiere-contact-proxy
-  OAUTH_IMAGE: ghcr.io/marthesok/termitiere-oauth-proxy
-  PUBLISH_IMAGE: ghcr.io/marthesok/termitiere-publish-proxy
+
+# ============================================================
+# BUILD & PUSH
+# ============================================================
 
 jobs:
 
-  # ============================================================
-  # BUILD & PUSH — 3 IMAGES
-  # ============================================================
-
   build:
-    name: Build & Push Docker Images
+
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Checkout
+      # --------------------------------------------------------
+      # CHECKOUT
+      # --------------------------------------------------------
+
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+
+      # --------------------------------------------------------
+      # LOGIN GHCR
+      # --------------------------------------------------------
 
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: la-termitiere
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ----------------------------------------------------------
-      # VITRINE
-      # ----------------------------------------------------------
 
-      - name: Build & Push Vitrine
+      # --------------------------------------------------------
+      # BUILD VITRINE
+      # --------------------------------------------------------
+
+      - name: Build Vitrine
         run: |
           set -e
 
           SHA="${GITHUB_SHA::7}"
+
+          echo "======================================="
+          echo "BUILD VITRINE"
+          echo "Image: ${VITRINE_IMAGE}:${SHA}"
+          echo "======================================="
 
           docker build \
             -t "${VITRINE_IMAGE}:${SHA}" \
             -t "${VITRINE_IMAGE}:latest" \
             .
 
-          docker push "${VITRINE_IMAGE}:${SHA}"
-          docker push "${VITRINE_IMAGE}:latest"
 
-      # ----------------------------------------------------------
-      # CONTACT PROXY
-      # ----------------------------------------------------------
+      # --------------------------------------------------------
+      # BUILD CONTACT PROXY
+      # --------------------------------------------------------
 
-      - name: Build & Push Contact Proxy
+      - name: Build Contact Proxy
         run: |
           set -e
 
           SHA="${GITHUB_SHA::7}"
+
+          echo "======================================="
+          echo "BUILD CONTACT PROXY"
+          echo "Image: ${CONTACT_IMAGE}:${SHA}"
+          echo "======================================="
 
           docker build \
             -t "${CONTACT_IMAGE}:${SHA}" \
             -t "${CONTACT_IMAGE}:latest" \
             ./contact-proxy
 
-          docker push "${CONTACT_IMAGE}:${SHA}"
-          docker push "${CONTACT_IMAGE}:latest"
 
-      # ----------------------------------------------------------
-      # OAUTH PROXY
-      # ----------------------------------------------------------
+      # --------------------------------------------------------
+      # BUILD OAUTH PROXY
+      # --------------------------------------------------------
 
-      - name: Build & Push OAuth Proxy
+      - name: Build OAuth Proxy
         run: |
           set -e
 
           SHA="${GITHUB_SHA::7}"
+
+          echo "======================================="
+          echo "BUILD OAUTH PROXY"
+          echo "Image: ${OAUTH_IMAGE}:${SHA}"
+          echo "======================================="
 
           docker build \
             -t "${OAUTH_IMAGE}:${SHA}" \
             -t "${OAUTH_IMAGE}:latest" \
             ./oauth-proxy
 
-          docker push "${OAUTH_IMAGE}:${SHA}"
-          docker push "${OAUTH_IMAGE}:latest"
 
-      # ----------------------------------------------------------
-      # PUBLISH PROXY
-      # ----------------------------------------------------------
+      # --------------------------------------------------------
+      # BUILD PUBLISH PROXY
+      # --------------------------------------------------------
 
-      - name: Build & Push Publish Proxy
+      - name: Build Publish Proxy
         run: |
           set -e
 
           SHA="${GITHUB_SHA::7}"
+
+          echo "======================================="
+          echo "BUILD PUBLISH PROXY"
+          echo "Image: ${PUBLISH_IMAGE}:${SHA}"
+          echo "======================================="
 
           docker build \
             -t "${PUBLISH_IMAGE}:${SHA}" \
             -t "${PUBLISH_IMAGE}:latest" \
             ./publish-proxy
 
+
+      # --------------------------------------------------------
+      # PUSH ALL IMAGES
+      # --------------------------------------------------------
+
+      - name: Push Docker Images
+        run: |
+          set -e
+
+          SHA="${GITHUB_SHA::7}"
+
+          echo "======================================="
+          echo "PUSH DOCKER IMAGES"
+          echo "Commit: ${SHA}"
+          echo "======================================="
+
+          docker push "${VITRINE_IMAGE}:${SHA}"
+          docker push "${VITRINE_IMAGE}:latest"
+
+          docker push "${CONTACT_IMAGE}:${SHA}"
+          docker push "${CONTACT_IMAGE}:latest"
+
+          docker push "${OAUTH_IMAGE}:${SHA}"
+          docker push "${OAUTH_IMAGE}:latest"
+
           docker push "${PUBLISH_IMAGE}:${SHA}"
           docker push "${PUBLISH_IMAGE}:latest"
+
+          echo
+          echo "======================================="
+          echo "ALL IMAGES PUSHED SUCCESSFULLY"
+          echo "======================================="
 
 
   # ============================================================
@@ -125,15 +180,20 @@ jobs:
   # ============================================================
 
   deploy:
-    name: Deploy Site Vitrine on VPS
+
+    needs:
+      - build
+
     runs-on: ubuntu-latest
-    needs: build
 
     steps:
 
-      - name: Deploy on VPS
-        uses: appleboy/ssh-action@v1.0.3
+      # --------------------------------------------------------
+      # DEPLOY TO VPS
+      # --------------------------------------------------------
 
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.2
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
 
@@ -144,123 +204,363 @@ jobs:
           envs: GHCR_TOKEN
 
           script: |
+
             set -e
 
             PROJECT="/home/bawa/site-vitrine-de-la-termitiere"
-            SHA="${{ github.sha }}"
-            SHA="${SHA:0:7}"
 
             cd "$PROJECT"
 
+            SHA_SHORT="${{ github.sha }}"
+            SHA_SHORT="${SHA_SHORT:0:7}"
+
+
+            # ============================================================
+            # HEADER
+            # ============================================================
+
+            echo
             echo "======================================="
-            echo "Deploy Site Vitrine"
-            echo "Commit: $SHA"
+            echo "LA TERMITIÈRE — PRODUCTION DEPLOY"
+            echo "Commit: ${SHA_SHORT}"
             echo "======================================="
+            echo
 
-            # ----------------------------------------------------
-            # Vérification réseau partagé
-            # ----------------------------------------------------
 
-            echo "Checking deploy_default..."
+            # ============================================================
+            # LOGIN GHCR
+            # ============================================================
 
-            docker network inspect deploy_default >/dev/null 2>&1
-
-            echo "✅ deploy_default exists."
-
-            # ----------------------------------------------------
-            # Login GHCR
-            # ----------------------------------------------------
-
-            echo "Login to GHCR..."
+            echo "Logging into GHCR..."
 
             echo "$GHCR_TOKEN" | \
               docker login ghcr.io \
-              -u "marthesok" \
+              -u "la-termitiere" \
               --password-stdin
 
-            echo "✅ GHCR login successful."
+            echo "GHCR login successful."
 
-            # ----------------------------------------------------
-            # Mise à jour des tags dans .env
-            # ----------------------------------------------------
 
-            echo "Updating production images..."
+            # ============================================================
+            # SAVE CURRENT VERSION
+            # ============================================================
 
-            sed -i \
-              "s|^VITRINE_IMAGE=.*|VITRINE_IMAGE=ghcr.io/marthesok/site-vitrine-de-la-termitiere:${SHA}|" \
-              deploy/.env
+            echo
+            echo "Reading current deployment..."
 
-            sed -i \
-              "s|^CONTACT_PROXY_IMAGE=.*|CONTACT_PROXY_IMAGE=ghcr.io/marthesok/termitiere-contact-proxy:${SHA}|" \
-              deploy/.env
+            OLD_TAG=""
 
-            sed -i \
-              "s|^OAUTH_PROXY_IMAGE=.*|OAUTH_PROXY_IMAGE=ghcr.io/marthesok/termitiere-oauth-proxy:${SHA}|" \
-              deploy/.env
+            if [ -f deploy/.env.deploy ]; then
 
-            sed -i \
-              "s|^PUBLISH_PROXY_IMAGE=.*|PUBLISH_PROXY_IMAGE=ghcr.io/marthesok/termitiere-publish-proxy:${SHA}|" \
-              deploy/.env
+              OLD_TAG=$(
+                grep '^VITRINE_IMAGE=' deploy/.env.deploy |
+                tail -1 |
+                sed 's/.*://'
+              )
 
-            echo "Images configured:"
-            grep -E '^(VITRINE_IMAGE|CONTACT_PROXY_IMAGE|OAUTH_PROXY_IMAGE|PUBLISH_PROXY_IMAGE)=' deploy/.env
+            fi
 
-            # ----------------------------------------------------
-            # Validation Compose
-            # ----------------------------------------------------
+            echo "Current deployed version: ${OLD_TAG:-none}"
 
-            echo "Validating Compose configuration..."
 
-            docker compose \
-              --env-file deploy/.env \
-              -f deploy/docker-compose.prod.yml \
-              config >/dev/null
+            # ============================================================
+            # WRITE DEPLOYMENT ENVIRONMENT
+            # ============================================================
 
-            echo "✅ Compose configuration valid."
+            write_deploy_env() {
 
-            # ----------------------------------------------------
-            # Pull images
-            # ----------------------------------------------------
+              TAG="$1"
 
-            echo "Pulling images..."
+              cat > deploy/.env.deploy <<EOF
+            VITRINE_IMAGE=ghcr.io/la-termitiere/site-vitrine-de-la-termitiere:${TAG}
+            CONTACT_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-contact-proxy:${TAG}
+            OAUTH_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-oauth-proxy:${TAG}
+            PUBLISH_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-publish-proxy:${TAG}
 
-            docker compose \
-              --env-file deploy/.env \
-              -f deploy/docker-compose.prod.yml \
-              pull
+            DOMAIN_SITE=latermitiere.com
+            DOMAIN_CONTACT=contact.latermitiere.com
+            DOMAIN_OAUTH=oauth.latermitiere.com
+            DOMAIN_PUBLISH=publier.latermitiere.com
+            EOF
 
-            echo "✅ Images pulled."
+            }
 
-            # ----------------------------------------------------
-            # Deploy
-            # ----------------------------------------------------
 
-            echo "Starting services..."
+            # ============================================================
+            # DOCKER COMPOSE WRAPPER
+            # ============================================================
 
-            docker compose \
-              --env-file deploy/.env \
-              -f deploy/docker-compose.prod.yml \
-              up -d --remove-orphans
+            compose() {
 
-            echo "✅ Services started."
+              docker compose \
+                --env-file deploy/.env \
+                --env-file deploy/.env.deploy \
+                -f deploy/docker-compose.prod.yml \
+                "$@"
 
-            # ----------------------------------------------------
-            # Vérification
-            # ----------------------------------------------------
+            }
 
+
+            # ============================================================
+            # ROLLBACK
+            # ============================================================
+
+            rollback() {
+
+              echo
+              echo "======================================="
+              echo "DEPLOYMENT FAILED"
+              echo "======================================="
+              echo
+
+
+              echo "Container status:"
+
+              compose ps -a || true
+
+
+              echo
+              echo "Recent container logs:"
+
+
+              docker logs --tail 100 termitiere-vitrine || true
+
+              docker logs --tail 100 termitiere-contact-proxy || true
+
+              docker logs --tail 100 termitiere-oauth-proxy || true
+
+              docker logs --tail 100 termitiere-publish-proxy || true
+
+
+              if [ -z "$OLD_TAG" ]; then
+
+                echo
+                echo "No previous deployment found."
+                echo "Automatic rollback is impossible."
+
+                return 1
+
+              fi
+
+
+              echo
+              echo "======================================="
+              echo "ROLLBACK"
+              echo "Previous version: ${OLD_TAG}"
+              echo "======================================="
+              echo
+
+
+              echo "Restoring previous deployment..."
+
+              write_deploy_env "$OLD_TAG"
+
+
+              echo "Validating rollback configuration..."
+
+              compose config >/dev/null
+
+
+              echo "Pulling previous images..."
+
+              compose pull
+
+
+              echo "Stopping failed deployment..."
+
+              compose down --remove-orphans
+
+
+              echo "Starting previous deployment..."
+
+              compose up -d \
+                --force-recreate \
+                --remove-orphans
+
+
+              echo
+              echo "Waiting for rollback..."
+
+              sleep 10
+
+
+              echo
+              echo "Checking rollback health..."
+
+
+              # ----------------------------------------------------------
+              # WEBSITE
+              # ----------------------------------------------------------
+
+              if ! curl \
+                -f \
+                -sS \
+                --max-time 20 \
+                https://latermitiere.com \
+                >/dev/null
+              then
+
+                echo "Rollback website health check failed."
+
+                compose ps -a
+
+                return 1
+
+              fi
+
+
+              # ----------------------------------------------------------
+              # PUBLISH PROXY
+              # ----------------------------------------------------------
+
+              if ! curl \
+                -f \
+                -sS \
+                --max-time 20 \
+                https://publier.latermitiere.com/health \
+                >/dev/null
+              then
+
+                echo "Rollback publish proxy health check failed."
+
+                compose ps -a
+
+                return 1
+
+              fi
+
+
+              # ----------------------------------------------------------
+              # CONTACT PROXY
+              # ----------------------------------------------------------
+
+              if ! docker exec termitiere-contact-proxy \
+                wget -qO- \
+                http://127.0.0.1:8081/health \
+                >/dev/null 2>&1
+              then
+
+                echo "Rollback contact proxy health check failed."
+
+                compose ps -a
+
+                return 1
+
+              fi
+
+
+              # ----------------------------------------------------------
+              # OAUTH PROXY
+              # ----------------------------------------------------------
+
+              if ! docker exec termitiere-oauth-proxy \
+                wget -qO- \
+                http://127.0.0.1:8080/health \
+                >/dev/null 2>&1
+              then
+
+                echo "Rollback OAuth proxy health check failed."
+
+                compose ps -a
+
+                return 1
+
+              fi
+
+
+              echo
+              echo "======================================="
+              echo "ROLLBACK COMPLETED"
+              echo "Restored version: ${OLD_TAG}"
+              echo "======================================="
+
+              return 0
+            }
+
+
+            # ============================================================
+            # PREPARE NEW VERSION
+            # ============================================================
+
+            echo
+            echo "Preparing deployment..."
+
+            write_deploy_env "$SHA_SHORT"
+
+
+            echo
+            echo "Deployment images:"
+
+            grep -E \
+              '^(VITRINE_IMAGE|CONTACT_PROXY_IMAGE|OAUTH_PROXY_IMAGE|PUBLISH_PROXY_IMAGE)=' \
+              deploy/.env.deploy
+
+
+            # ============================================================
+            # VALIDATE COMPOSE
+            # ============================================================
+
+            echo
+            echo "Validating Docker Compose..."
+
+            compose config >/dev/null
+
+            echo "Compose configuration valid."
+
+
+            # ============================================================
+            # PULL IMAGES
+            # ============================================================
+
+            echo
+            echo "Pulling Docker images..."
+
+            compose pull
+
+            echo "Images pulled successfully."
+
+
+            # ============================================================
+            # STOP PREVIOUS DEPLOYMENT
+            # ============================================================
+
+            echo
+            echo "Stopping previous containers..."
+
+            compose down --remove-orphans
+
+
+            # ============================================================
+            # START NEW DEPLOYMENT
+            # ============================================================
+
+            echo
+            echo "Starting new containers..."
+
+            compose up -d \
+              --force-recreate \
+              --remove-orphans
+
+
+            # ============================================================
+            # WAIT
+            # ============================================================
+
+            echo
+            echo "Waiting for application startup..."
+
+            sleep 10
+
+
+            # ============================================================
+            # CONTAINER CHECKS
+            # ============================================================
+
+            DEPLOY_OK=true
+
+            echo
             echo "Checking containers..."
 
-            docker ps \
-              --filter "name=^/termitiere-vitrine$" \
-              --filter "name=^/termitiere-contact-proxy$" \
-              --filter "name=^/termitiere-oauth-proxy$" \
-              --filter "name=^/termitiere-publish-proxy$"
-
-            # ----------------------------------------------------
-            # Vérification réseau
-            # ----------------------------------------------------
-
-            echo "Checking network..."
 
             for CONTAINER in \
               termitiere-vitrine \
@@ -268,46 +568,204 @@ jobs:
               termitiere-oauth-proxy \
               termitiere-publish-proxy
             do
-              docker inspect "$CONTAINER" \
-                --format '{{json .NetworkSettings.Networks}}' |
-                grep -q "deploy_default"
 
-              echo "✅ $CONTAINER connected to deploy_default."
+              if ! docker inspect "$CONTAINER" >/dev/null 2>&1; then
+
+                echo "Missing container: $CONTAINER"
+
+                DEPLOY_OK=false
+
+                continue
+
+              fi
+
+
+              RUNNING=$(
+                docker inspect \
+                  --format '{{.State.Running}}' \
+                  "$CONTAINER"
+              )
+
+
+              if [ "$RUNNING" != "true" ]; then
+
+                echo "$CONTAINER is not running"
+
+                DEPLOY_OK=false
+
+              else
+
+                echo "$CONTAINER is running"
+
+              fi
+
             done
 
-            # ----------------------------------------------------
-            # Health checks internes
-            # ----------------------------------------------------
 
-            echo "Checking vitrine..."
+            # ============================================================
+            # NETWORK CHECK
+            # ============================================================
 
-            docker exec termitiere-vitrine \
-              wget -qO- http://localhost:80 >/dev/null
+            echo
+            echo "Checking Docker network..."
 
-            echo "✅ Vitrine OK."
 
-            echo "Checking contact proxy..."
+            for CONTAINER in \
+              termitiere-vitrine \
+              termitiere-contact-proxy \
+              termitiere-oauth-proxy \
+              termitiere-publish-proxy
+            do
 
-            docker exec termitiere-contact-proxy \
-              wget -qO- http://localhost:8081 >/dev/null || true
+              if ! docker inspect "$CONTAINER" \
+                --format '{{json .NetworkSettings.Networks}}' |
+                grep -q '"deploy_default"'
+              then
 
-            echo "Contact proxy container OK."
+                echo "$CONTAINER is not connected to deploy_default"
 
-            echo "Checking oauth proxy..."
+                DEPLOY_OK=false
 
-            docker exec termitiere-oauth-proxy \
-              wget -qO- http://localhost:8080 >/dev/null || true
+              else
 
-            echo "OAuth proxy container OK."
+                echo "$CONTAINER connected to deploy_default"
 
+              fi
+
+            done
+
+
+            # ============================================================
+            # WEBSITE HEALTH CHECK
+            # ============================================================
+
+            echo
+            echo "Checking public website..."
+
+
+            if curl \
+              -f \
+              -sS \
+              --max-time 20 \
+              https://latermitiere.com \
+              >/dev/null
+            then
+
+              echo "Website OK"
+
+            else
+
+              echo "Website failed"
+
+              DEPLOY_OK=false
+
+            fi
+
+
+            # ============================================================
+            # PUBLISH PROXY HEALTH CHECK
+            # ============================================================
+
+            echo
             echo "Checking publish proxy..."
 
-            docker exec termitiere-publish-proxy \
-              wget -qO- http://localhost:8082/health >/dev/null || true
 
-            echo "Publish proxy container OK."
+            if curl \
+              -f \
+              -sS \
+              --max-time 20 \
+              https://publier.latermitiere.com/health \
+              >/dev/null
+            then
 
-            echo "======================================="
-            echo "✅ DEPLOYMENT COMPLETE"
-            echo "Commit: $SHA"
-            echo "======================================="
+              echo "Publish proxy OK"
+
+            else
+
+              echo "Publish proxy failed"
+
+              DEPLOY_OK=false
+
+            fi
+
+
+            # ============================================================
+            # CONTACT PROXY HEALTH CHECK
+            # ============================================================
+
+            echo
+            echo "Checking contact proxy..."
+
+
+            if docker exec termitiere-contact-proxy \
+              wget -qO- \
+              http://127.0.0.1:8081/health \
+              >/dev/null 2>&1
+            then
+
+              echo "Contact proxy OK"
+
+            else
+
+              echo "Contact proxy failed"
+
+              docker logs --tail 100 termitiere-contact-proxy || true
+
+              DEPLOY_OK=false
+
+            fi
+
+
+            # ============================================================
+            # OAUTH PROXY HEALTH CHECK
+            # ============================================================
+
+            echo
+            echo "Checking OAuth proxy..."
+
+
+            if docker exec termitiere-oauth-proxy \
+              wget -qO- \
+              http://127.0.0.1:8080/health \
+              >/dev/null 2>&1
+            then
+
+              echo "OAuth proxy OK"
+
+            else
+
+              echo "OAuth proxy failed"
+
+              docker logs --tail 100 termitiere-oauth-proxy || true
+
+              DEPLOY_OK=false
+
+            fi
+
+
+            # ============================================================
+            # FINAL DECISION
+            # ============================================================
+
+            echo
+
+
+            if [ "$DEPLOY_OK" = "true" ]; then
+
+              echo "======================================="
+              echo "DEPLOYMENT COMPLETE"
+              echo "Version: ${SHA_SHORT}"
+              echo "======================================="
+
+              exit 0
+
+            fi
+
+
+            # ============================================================
+            # AUTOMATIC ROLLBACK
+            # ============================================================
+
+            rollback
+
+            exit $?
