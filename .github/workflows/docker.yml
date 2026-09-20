@@ -1,11 +1,14 @@
 name: Build, Push & Deploy — La Termitière
 
-# Le declenchement automatique sur push a ete retire : le deploiement se fait
-# desormais depuis le depot de l'entreprise (la-TERMITIERE/site-vitrine-de-la-termitiere),
-# pas depuis ce depot personnel. Ce workflow reste present (secrets et
-# historique conserves) et peut etre relance manuellement si besoin, mais ne
-# se declenche plus tout seul pour eviter un double deploiement concurrent.
+# Ce fichier est identique sur les deux depots (personnel et entreprise). Le
+# declenchement automatique reste actif des deux cotes, mais les jobs
+# ci-dessous verifient github.repository et ne s'executent reellement que
+# depuis le depot de l'entreprise (voir le "if:" sur build/deploy) — le
+# depot personnel n'est donc plus jamais un deployeur actif.
 on:
+  push:
+    branches:
+      - docker-deployment
   workflow_dispatch:
 
 # Une seule execution du deploiement a la fois : si plusieurs publications
