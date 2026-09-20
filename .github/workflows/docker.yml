@@ -34,6 +34,11 @@ jobs:
 
   build:
 
+    # Garde-fou : ce job ne s'execute que depuis le depot de l'entreprise, meme
+    # si ce fichier (identique) est aussi present sur le depot personnel — evite
+    # tout risque de deploiement concurrent depuis les deux depots a la fois.
+    if: github.repository == 'la-TERMITIERE/site-vitrine-de-la-termitiere'
+
     runs-on: ubuntu-latest
 
     steps:
@@ -180,6 +185,8 @@ jobs:
   # ============================================================
 
   deploy:
+
+    if: github.repository == 'la-TERMITIERE/site-vitrine-de-la-termitiere'
 
     needs:
       - build
