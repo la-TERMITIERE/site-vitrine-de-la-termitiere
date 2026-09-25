@@ -1025,7 +1025,8 @@ table.price-table tr:last-child td{ border-bottom:none; }
 .team-member-avatar--photo img[src*="responsable_briqueterie"],
 .team-member-avatar--photo img[src*="responsable-logistique"],
 .team-member-avatar--photo img[src*="respo-btp"],
-.team-member-avatar--photo img[src*="image_educatrice"] {
+.team-member-avatar--photo img[src*="image_educatrice"],
+.team-member-avatar--photo img[src*="responsable_foncier"] {
   object-position: center 15%;
 }
 .team-member-avatar .letter-badge{

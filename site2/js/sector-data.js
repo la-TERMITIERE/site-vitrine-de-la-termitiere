@@ -339,7 +339,7 @@ const SECTORS = {
     name: "La Foncière",
     tagline: "Sécurisation foncière",
     letter: "G",
-    manager: { name: "tchakondo Abdoul", title: "Responsable", photo: "" },
+    manager: { name: "tchakondo Abdoul", title: "Responsable", photo: "images/equipe/responsable_foncier.webp" },
     cardText: "Sécurisation et suivi de vos dossiers de terrain au Togo, de l'achat à l'immatriculation, en toute transparence.",
     comingSoon: false,
     mission: "La Foncière, le service de sécurisation foncière de La Termitière à Lomé, au Togo, vous accompagne face à un risque fréquent lors de l'achat d'un terrain : limites inexistantes, périmètre non défini, géolocalisation absente. La Foncière apprécie votre dossier avant tout engagement et refuse les missions à risque plutôt que d'exposer le client : du terrain coutumier au titre foncier signé, nous prenons votre dossier en main, étape par étape, en toute transparence.",
