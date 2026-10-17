@@ -9,3 +9,6 @@ oauth-proxy
 contact-proxy
 
 *.md
+
+# Dependances locales des services Node (chat-proxy est construit depuis la racine)
+**/node_modules

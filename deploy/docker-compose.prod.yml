@@ -39,6 +39,29 @@ services:
 
 
   # ============================================================
+  # CHAT PROXY (assistant IA « Termi », joint via nginx sur /api/chat)
+  # ============================================================
+
+  chat-proxy:
+    image: ${CHAT_PROXY_IMAGE}
+
+    container_name: termitiere-chat-proxy
+
+    restart: unless-stopped
+
+    environment:
+      PORT: "8083"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+      CHAT_MODEL: "${CHAT_MODEL:-claude-opus-5-5}"
+      CHAT_EFFORT: "${CHAT_EFFORT:-low}"
+      RATE_LIMIT_PER_IP: "${CHAT_RATE_LIMIT_PER_IP:-30}"
+      DAILY_LIMIT: "${CHAT_DAILY_LIMIT:-3000}"
+
+    networks:
+      - deploy_default
+
+
+  # ============================================================
   # OAUTH PROXY
   # ============================================================
 

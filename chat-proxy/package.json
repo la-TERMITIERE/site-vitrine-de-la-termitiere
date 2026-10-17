@@ -1,0 +1,15 @@
+{
+  "name": "termitiere-chat-proxy",
+  "version": "1.0.0",
+  "description": "Assistant IA du site (FAQ, sante/sport, jeux) : relaie les conversations vers l'API Claude",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "CHAT_MOCK=1 STATIC_DIR=../site2 node server.js"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "express": "^4.22.3"
+  }
+}
