@@ -12,3 +12,4 @@ contact-proxy
 
 # Dependances locales des services Node (chat-proxy est construit depuis la racine)
 **/node_modules
+!chat-proxy/infos-entreprise.md

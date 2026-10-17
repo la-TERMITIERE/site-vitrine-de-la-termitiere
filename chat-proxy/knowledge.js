@@ -77,10 +77,24 @@ Réseaux : Facebook « La Termitière », YouTube @la_termitiere, TikTok @la_ter
 Pages du site : Accueil (/index.html), Équipe (/equipe.html), Galerie photos et vidéos (/galerie.html), Promotions (/promotions.html), Carrières et offres d'emploi (/carrieres.html), FAQ (/index.html#faq).
 Paiement : Mobile Money (T-Money, Flooz) ou espèces, selon le secteur.`;
 
-// Partie stable du savoir : mise en cache cote API (identique d'une requete a l'autre).
+// Informations complementaires redigees par l'equipe (texte libre, sans code) :
+// chat-proxy/infos-entreprise.md. Les commentaires <!-- ... --> sont ignores.
+function readExtraInfos() {
+  try {
+    return fs.readFileSync(path.join(__dirname, 'infos-entreprise.md'), 'utf8')
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  } catch (err) {
+    return '';
+  }
+}
+
+// Partie stable du savoir (identique d'une requete a l'autre).
 function buildStaticKnowledge() {
   const sectors = SECTOR_ORDER.map((id) => SECTORS[id]).filter(Boolean).map(sectorToText).join('\n\n');
-  return `${COMPANY_TEXT}\n\n# Les secteurs d'activité\n\n${sectors}`;
+  const extra = readExtraInfos();
+  return `${COMPANY_TEXT}\n\n# Les secteurs d'activité\n\n${sectors}${extra ? `\n\n# Informations complémentaires fournies par l'équipe\n\n${extra}` : ''}`;
 }
 
 // Partie variable : promotions et offres encore valides aujourd'hui.

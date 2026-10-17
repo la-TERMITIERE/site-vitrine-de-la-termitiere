@@ -47,9 +47,17 @@ cd chat-proxy
 npm install
 # Mode test : réponses factices, sans clé API — ouvrir http://localhost:8083
 CHAT_MOCK=1 STATIC_DIR=../site2 node server.js
-# Avec la vraie IA
-GEMINI_API_KEY=AIza... STATIC_DIR=../site2 node server.js
+# Avec la vraie IA : copier .env.example en .env, y coller la clé, puis
+node --env-file=.env server.js   # avec STATIC_DIR=../site2 pour servir le site
 ```
+
+Le fichier `.env` est ignoré par git : la clé n'est jamais publiée.
+
+## Ajouter vos propres informations
+
+Pas d'« entraînement » à faire : l'assistant relit ses informations à chaque démarrage.
+- Infos des secteurs (tarifs, horaires, FAQ...) : `site2/js/sector-data.js` (déjà utilisées aussi par le site).
+- Tout le reste (histoire, règles, questions fréquentes au téléphone, fermetures...) : **`infos-entreprise.md`**, en texte libre.
 
 ## 4. Vérifier
 
