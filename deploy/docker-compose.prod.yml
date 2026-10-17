@@ -59,6 +59,28 @@ services:
 
 
   # ============================================================
+  # CHAT PROXY (assistant IA « Termi », joint via nginx sur /api/chat)
+  # ============================================================
+
+  chat-proxy:
+    image: ${CHAT_PROXY_IMAGE}
+
+    container_name: termitiere-chat-proxy
+
+    restart: unless-stopped
+
+    environment:
+      PORT: "8083"
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+      CHAT_MODEL: "${CHAT_MODEL:-gemini-3.5-flash-lite}"
+      RATE_LIMIT_PER_IP: "${CHAT_RATE_LIMIT_PER_IP:-30}"
+      DAILY_LIMIT: "${CHAT_DAILY_LIMIT:-1000}"
+
+    networks:
+      - deploy_default
+
+
+  # ============================================================
   # OAUTH PROXY
   # ============================================================
 

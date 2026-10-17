@@ -29,6 +29,7 @@ env:
   CONTACT_IMAGE: ghcr.io/la-termitiere/termitiere-contact-proxy
   OAUTH_IMAGE: ghcr.io/la-termitiere/termitiere-oauth-proxy
   PUBLISH_IMAGE: ghcr.io/la-termitiere/termitiere-publish-proxy
+  CHAT_IMAGE: ghcr.io/la-termitiere/termitiere-chat-proxy
 
 
 # ============================================================
@@ -153,6 +154,25 @@ jobs:
 
 
       # --------------------------------------------------------
+      # BUILD CHAT PROXY (assistant IA)
+      # Contexte = racine du depot : l'image embarque les donnees du site
+      # --------------------------------------------------------
+
+      - name: Build Chat Proxy
+        run: |
+          set -e
+
+          SHA="${GITHUB_SHA::7}"
+
+          echo "======================================="
+          echo "BUILD CHAT PROXY"
+          echo "Image: ${CHAT_IMAGE}:${SHA}"
+          echo "======================================="
+
+          docker build             -f chat-proxy/Dockerfile             -t "${CHAT_IMAGE}:${SHA}"             -t "${CHAT_IMAGE}:latest"             .
+
+
+      # --------------------------------------------------------
       # PUSH ALL IMAGES
       # --------------------------------------------------------
 
@@ -178,6 +198,9 @@ jobs:
 
           docker push "${PUBLISH_IMAGE}:${SHA}"
           docker push "${PUBLISH_IMAGE}:latest"
+
+          docker push "${CHAT_IMAGE}:${SHA}"
+          docker push "${CHAT_IMAGE}:latest"
 
           echo
           echo "======================================="
@@ -288,6 +311,7 @@ jobs:
             CONTACT_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-contact-proxy:${TAG}
             OAUTH_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-oauth-proxy:${TAG}
             PUBLISH_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-publish-proxy:${TAG}
+            CHAT_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-chat-proxy:${TAG}
 
             DOMAIN_SITE=latermitiere.com
             DOMAIN_CONTACT=contact.latermitiere.com
@@ -342,6 +366,8 @@ jobs:
               docker logs --tail 100 termitiere-oauth-proxy || true
 
               docker logs --tail 100 termitiere-publish-proxy || true
+
+              docker logs --tail 100 termitiere-chat-proxy || true
 
 
               if [ -z "$OLD_TAG" ]; then
@@ -504,7 +530,7 @@ jobs:
             echo "Deployment images:"
 
             grep -E \
-              '^(VITRINE_IMAGE|CONTACT_PROXY_IMAGE|OAUTH_PROXY_IMAGE|PUBLISH_PROXY_IMAGE)=' \
+              '^(VITRINE_IMAGE|CONTACT_PROXY_IMAGE|OAUTH_PROXY_IMAGE|PUBLISH_PROXY_IMAGE|CHAT_PROXY_IMAGE)=' \
               deploy/.env.deploy
 
 
@@ -578,7 +604,7 @@ jobs:
               termitiere-vitrine \
               termitiere-contact-proxy \
               termitiere-oauth-proxy \
-              termitiere-publish-proxy
+              termitiere-publish-proxy               termitiere-chat-proxy
             do
 
               if ! docker inspect "$CONTAINER" >/dev/null 2>&1; then
@@ -626,7 +652,7 @@ jobs:
               termitiere-vitrine \
               termitiere-contact-proxy \
               termitiere-oauth-proxy \
-              termitiere-publish-proxy
+              termitiere-publish-proxy               termitiere-chat-proxy
             do
 
               if ! docker inspect "$CONTAINER" \
@@ -749,6 +775,30 @@ jobs:
               echo "OAuth proxy failed"
 
               docker logs --tail 100 termitiere-oauth-proxy || true
+
+              DEPLOY_OK=false
+
+            fi
+
+
+            # ============================================================
+            # CHAT PROXY HEALTH CHECK
+            # ============================================================
+
+            echo
+            echo "Checking chat proxy..."
+
+
+            if docker exec termitiere-chat-proxy               wget -qO-               http://127.0.0.1:8083/health               >/dev/null 2>&1
+            then
+
+              echo "Chat proxy OK"
+
+            else
+
+              echo "Chat proxy failed"
+
+              docker logs --tail 100 termitiere-chat-proxy || true
 
               DEPLOY_OK=false
 
