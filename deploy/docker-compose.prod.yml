@@ -51,11 +51,10 @@ services:
 
     environment:
       PORT: "8083"
-      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
-      CHAT_MODEL: "${CHAT_MODEL:-claude-opus-5-5}"
-      CHAT_EFFORT: "${CHAT_EFFORT:-low}"
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+      CHAT_MODEL: "${CHAT_MODEL:-gemini-3.8-flash}"
       RATE_LIMIT_PER_IP: "${CHAT_RATE_LIMIT_PER_IP:-30}"
-      DAILY_LIMIT: "${CHAT_DAILY_LIMIT:-3000}"
+      DAILY_LIMIT: "${CHAT_DAILY_LIMIT:-1000}"
 
     networks:
       - deploy_default
