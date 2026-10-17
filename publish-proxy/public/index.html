@@ -40,6 +40,11 @@
   .item-actions .edit-btn { color: var(--accent); }
   .item-actions .delete-btn { color: #b3261e; }
   [hidden] { display: none !important; }
+  .stats-grid { display: flex; gap: 14px; }
+  .stat-box { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+  .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+  .stat-label { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  .stats-updated { color: var(--muted); font-size: 0.8rem; margin-top: 14px; text-align: center; }
 </style>
 </head>
 <body>
@@ -72,6 +77,9 @@
     <div class="tabs">
       <div class="tab active" data-tab="offre">Offre d'emploi</div>
       <div class="tab" data-tab="promotion">Promotion</div>
+      <div class="tab" data-tab="quiz">Quiz</div>
+      <div class="tab" data-tab="gagnants">Gagnants</div>
+      <div class="tab" data-tab="stats">Statistiques</div>
     </div>
 
     <div id="offre-card">
@@ -142,6 +150,80 @@
       <h2>Promotions publiées</h2>
       <div id="promotion-list"></div>
     </div>
+
+    <div id="quiz-card" hidden>
+      <div class="card">
+        <div class="editing-banner" id="quiz-editing-banner">Modification d'une question existante.</div>
+        <form id="quiz-form">
+          <label for="q-title">Question *</label>
+          <input id="q-title" name="title" required />
+
+          <label for="q-optionA">Réponse A *</label>
+          <input id="q-optionA" name="optionA" required />
+          <label for="q-optionB">Réponse B *</label>
+          <input id="q-optionB" name="optionB" required />
+          <label for="q-optionC">Réponse C *</label>
+          <input id="q-optionC" name="optionC" required />
+          <label for="q-optionD">Réponse D *</label>
+          <input id="q-optionD" name="optionD" required />
+
+          <label for="q-correct">Bonne réponse *</label>
+          <select id="q-correct" name="correct" required>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+
+          <button class="btn-primary" type="submit" id="quiz-submit">Ajouter la question</button>
+          <button class="btn-cancel" type="button" id="quiz-cancel" hidden>Annuler la modification</button>
+          <div id="quiz-msg" class="msg"></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <p class="sub" style="margin:0 0 10px;">
+          Import en masse : colle une liste de questions au format JSON ci-dessous pour en
+          ajouter plusieurs d'un coup, sans repasser par le formulaire pour chacune.
+        </p>
+        <textarea id="quiz-bulk-input" rows="6" placeholder='[
+  {"title":"...","optionA":"...","optionB":"...","optionC":"...","optionD":"...","correct":"A"}
+]'></textarea>
+        <button class="btn-primary" type="button" id="quiz-bulk-submit" style="margin-top:10px;">Importer ces questions</button>
+        <button class="btn-cancel" type="button" id="quiz-dedupe" style="margin-top:10px;">Nettoyer les doublons</button>
+        <div id="quiz-bulk-msg" class="msg"></div>
+      </div>
+
+      <h2>Questions du quiz</h2>
+      <div id="quiz-list"></div>
+    </div>
+
+    <div id="gagnants-card" hidden>
+      <div class="card">
+        <p class="sub" style="margin:0;">Personnes ayant gagné une récompense au quiz. Coche « réclamé » une fois le lot remis.</p>
+      </div>
+      <div id="gagnants-list"></div>
+    </div>
+
+    <div id="stats-card" hidden>
+      <div class="card">
+        <div id="stats-loading" class="list-empty">Chargement des statistiques…</div>
+        <div id="stats-content" hidden>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-value" id="stats-today">–</div>
+              <div class="stat-label">Visiteurs aujourd'hui</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value" id="stats-month">–</div>
+              <div class="stat-label">Visiteurs ce mois-ci</div>
+            </div>
+          </div>
+          <div class="stats-updated" id="stats-updated"></div>
+        </div>
+        <div id="stats-msg" class="msg"></div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -181,6 +263,7 @@ async function refreshSession() {
     who.textContent = 'Connectée en tant que ' + data.email;
     offreCollection.load();
     promotionCollection.load();
+    quizCollection.load();
   } else {
     loginView.hidden = false;
     appView.hidden = true;
@@ -217,11 +300,44 @@ document.querySelectorAll('.tab').forEach((tab) => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
     tab.classList.add('active');
-    const isOffre = tab.dataset.tab === 'offre';
-    document.getElementById('offre-card').hidden = !isOffre;
-    document.getElementById('promotion-card').hidden = isOffre;
+    const selected = tab.dataset.tab;
+    document.getElementById('offre-card').hidden = selected !== 'offre';
+    document.getElementById('promotion-card').hidden = selected !== 'promotion';
+    document.getElementById('quiz-card').hidden = selected !== 'quiz';
+    document.getElementById('gagnants-card').hidden = selected !== 'gagnants';
+    document.getElementById('stats-card').hidden = selected !== 'stats';
+    if (selected === 'stats') loadStats();
+    if (selected === 'gagnants') loadGagnants();
   });
 });
+
+let statsLoaded = false;
+
+async function loadStats() {
+  if (statsLoaded) return;
+  const loading = document.getElementById('stats-loading');
+  const content = document.getElementById('stats-content');
+  const msg = document.getElementById('stats-msg');
+  msg.className = 'msg';
+  try {
+    const res = await fetch('/api/stats', { credentials: 'same-origin' });
+    const data = await res.json();
+    if (!res.ok) {
+      loading.hidden = true;
+      showMsg(msg, data.error || 'Statistiques indisponibles pour le moment.', false);
+      return;
+    }
+    document.getElementById('stats-today').textContent = data.today;
+    document.getElementById('stats-month').textContent = data.month;
+    document.getElementById('stats-updated').textContent = 'Mis à jour : ' + new Date(data.updatedAt).toLocaleString('fr-FR');
+    loading.hidden = true;
+    content.hidden = false;
+    statsLoaded = true;
+  } catch (err) {
+    loading.hidden = true;
+    showMsg(msg, 'Erreur réseau, réessaie.', false);
+  }
+}
 
 function formatDateFr(dateStr) {
   const d = new Date(dateStr);
@@ -287,7 +403,7 @@ function createCollection(config) {
 
   async function load() {
     try {
-      const res = await fetch(config.endpoint, { credentials: 'same-origin' });
+      const res = await fetch(config.listEndpoint, { credentials: 'same-origin' });
       const data = await res.json();
       if (!res.ok) return;
       items = data.items || [];
@@ -336,7 +452,7 @@ function createCollection(config) {
 
 const offreCollection = createCollection({
   formId: 'offre-form', msgId: 'offre-msg', submitId: 'offre-submit', cancelId: 'offre-cancel',
-  bannerId: 'offre-editing-banner', listId: 'offre-list', endpoint: '/api/offres',
+  bannerId: 'offre-editing-banner', listId: 'offre-list', endpoint: '/api/offres', listEndpoint: '/api/content/offres',
   fields: ['title', 'type', 'sector', 'location', 'description', 'dateLimite'],
   createLabel: "Publier l'offre", editLabel: 'Enregistrer les modifications',
   summary: (item) => [item.type, item.location, item.dateLimite ? 'jusqu\'au ' + formatDateFr(item.dateLimite) : null].filter(Boolean).join(' · '),
@@ -344,11 +460,174 @@ const offreCollection = createCollection({
 
 const promotionCollection = createCollection({
   formId: 'promotion-form', msgId: 'promotion-msg', submitId: 'promotion-submit', cancelId: 'promotion-cancel',
-  bannerId: 'promotion-editing-banner', listId: 'promotion-list', endpoint: '/api/promotions',
+  bannerId: 'promotion-editing-banner', listId: 'promotion-list', endpoint: '/api/promotions', listEndpoint: '/api/content/promotions',
   fields: ['title', 'sector', 'description', 'validUntil'],
   createLabel: 'Publier la promotion', editLabel: 'Enregistrer les modifications',
   summary: (item) => [item.validUntil ? 'jusqu\'au ' + formatDateFr(item.validUntil) : null].filter(Boolean).join(' · '),
 });
+
+const quizCollection = createCollection({
+  formId: 'quiz-form', msgId: 'quiz-msg', submitId: 'quiz-submit', cancelId: 'quiz-cancel',
+  bannerId: 'quiz-editing-banner', listId: 'quiz-list', endpoint: '/api/quizquestions', listEndpoint: '/api/content/quizquestions',
+  fields: ['title', 'optionA', 'optionB', 'optionC', 'optionD', 'correct'],
+  createLabel: 'Ajouter la question', editLabel: 'Enregistrer les modifications',
+  summary: (item) => `A. ${item.optionA} · B. ${item.optionB} · C. ${item.optionC} · D. ${item.optionD} — bonne réponse : ${item.correct}`,
+});
+
+const quizBulkBtn = document.getElementById('quiz-bulk-submit');
+quizBulkBtn.addEventListener('click', async () => {
+  const input = document.getElementById('quiz-bulk-input');
+  const msg = document.getElementById('quiz-bulk-msg');
+  let list;
+  try {
+    list = JSON.parse(input.value);
+    if (!Array.isArray(list)) throw new Error('not-array');
+  } catch (err) {
+    msg.textContent = 'JSON invalide : vérifie que tu as bien collé une liste [ ... ].';
+    msg.style.color = '#b91c1c';
+    return;
+  }
+  if (!list.length) {
+    msg.textContent = 'La liste est vide.';
+    msg.style.color = '#b91c1c';
+    return;
+  }
+  quizBulkBtn.disabled = true;
+  msg.style.color = '';
+  // Import "idempotent" : si une question a deja exactement ce titre (import
+  // relance par erreur, double-clic...), on met a jour l'entree existante
+  // (ses reponses/categorie) au lieu de la dupliquer.
+  const existingRes = await fetch('/api/content/quizquestions', { credentials: 'same-origin', cache: 'no-store' });
+  const existingData = await existingRes.json();
+  const existingIndexByTitle = new Map();
+  (existingData.items || []).forEach((it, index) => {
+    const t = (it.title || '').trim();
+    if (t && !existingIndexByTitle.has(t)) existingIndexByTitle.set(t, index);
+  });
+  let created = 0;
+  let updated = 0;
+  let failed = 0;
+  for (const q of list) {
+    const title = (q.title || '').trim();
+    const existingIndex = title ? existingIndexByTitle.get(title) : undefined;
+    try {
+      if (existingIndex !== undefined) {
+        const res = await fetch(`/api/quizquestions/${existingIndex}`, {
+          method: 'PUT', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(q),
+        });
+        if (res.ok) updated += 1; else failed += 1;
+      } else {
+        const res = await fetch('/api/quizquestions', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(q),
+        });
+        if (res.ok) { created += 1; if (title) existingIndexByTitle.set(title, -1); } else failed += 1;
+      }
+    } catch (err) {
+      failed += 1;
+    }
+    msg.textContent = `Import en cours… ${created + updated + failed}/${list.length}`;
+  }
+  const parts = [];
+  if (created) parts.push(`${created} ajoutée(s)`);
+  if (updated) parts.push(`${updated} mise(s) à jour`);
+  if (failed) parts.push(`${failed} en échec`);
+  msg.textContent = (parts.join(', ') || 'Rien à importer') + '.';
+  msg.style.color = failed ? '#b91c1c' : '#15803d';
+  quizBulkBtn.disabled = false;
+  if (created || updated) {
+    input.value = '';
+    quizCollection.load();
+  }
+});
+
+document.getElementById('quiz-dedupe').addEventListener('click', async () => {
+  const msg = document.getElementById('quiz-bulk-msg');
+  if (!window.confirm('Supprimer les questions en double (meme titre), en ne gardant que la premiere de chaque ? Cette action est irreversible.')) return;
+  msg.style.color = '';
+  msg.textContent = 'Recherche des doublons…';
+  const res = await fetch('/api/content/quizquestions', { credentials: 'same-origin' });
+  const data = await res.json();
+  const items = data.items || [];
+  const seen = new Set();
+  const duplicateIndexes = [];
+  items.forEach((it, index) => {
+    const title = (it.title || '').trim();
+    if (seen.has(title)) duplicateIndexes.push(index); else seen.add(title);
+  });
+  if (!duplicateIndexes.length) {
+    msg.textContent = 'Aucun doublon trouvé.';
+    msg.style.color = '#15803d';
+    return;
+  }
+  // On supprime du plus grand index au plus petit : supprimer un index decale
+  // tous ceux qui suivent, donc il faut partir de la fin de la liste.
+  duplicateIndexes.sort((a, b) => b - a);
+  let removed = 0;
+  for (const index of duplicateIndexes) {
+    const delRes = await fetch(`/api/quizquestions/${index}`, { method: 'DELETE', credentials: 'same-origin' });
+    if (delRes.ok) removed += 1;
+    msg.textContent = `Nettoyage en cours… ${removed}/${duplicateIndexes.length}`;
+  }
+  msg.textContent = `${removed} question(s) en double supprimée(s).`;
+  msg.style.color = '#15803d';
+  quizCollection.load();
+});
+
+async function loadGagnants() {
+  // Toujours rechargee : les gagnants arrivent depuis une autre page (le quiz
+  // public), donc la liste peut changer pendant que cet onglet reste ouvert.
+  const listEl = document.getElementById('gagnants-list');
+  try {
+    const res = await fetch('/api/quiz-entries', { credentials: 'same-origin' });
+    const data = await res.json();
+    if (!res.ok) {
+      listEl.innerHTML = `<p class="list-empty">${data.error || 'Indisponible pour le moment.'}</p>`;
+      return;
+    }
+    const items = data.items || [];
+    if (!items.length) {
+      listEl.innerHTML = '<p class="list-empty">Personne n\'a encore gagné.</p>';
+      return;
+    }
+    listEl.innerHTML = '';
+    items.forEach((item, index) => {
+      const el = document.createElement('div');
+      el.className = 'item-card';
+      const duplicateBadge = item.duplicate
+        ? ' <span style="display:inline-block; background:#fde68a; color:#7c4a03; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:20px; vertical-align:middle;">⚠ Possible doublon</span>'
+        : '';
+      el.innerHTML = `
+        <div class="item-title">${item.name} — ${item.score}/${item.total}${duplicateBadge}</div>
+        <div class="item-meta">${item.phone} · ${item.prizeLabel || 'Sans lot'} · ${formatDateFr(item.date)}</div>
+        <div class="item-actions">
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; color:var(--text);">
+            <input type="checkbox" ${item.claimed ? 'checked' : ''} style="width:auto;" />
+            Réclamé
+          </label>
+          <button type="button" class="delete-btn">Supprimer</button>
+        </div>`;
+      el.querySelector('input[type="checkbox"]').addEventListener('change', async (e) => {
+        await fetch(`/api/quiz-entries/${index}`, {
+          method: 'PUT', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ claimed: e.target.checked }),
+        });
+      });
+      el.querySelector('.delete-btn').addEventListener('click', async () => {
+        if (!window.confirm(`Supprimer l'entrée de "${item.name}" ?`)) return;
+        await fetch(`/api/quiz-entries/${index}`, { method: 'DELETE', credentials: 'same-origin' });
+        await loadGagnants();
+      });
+      listEl.appendChild(el);
+    });
+  } catch (err) {
+    listEl.innerHTML = '<p class="list-empty">Erreur réseau, réessaie.</p>';
+  }
+}
 
 refreshSession();
 </script>

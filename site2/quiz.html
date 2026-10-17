@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Testez vos connaissances | La Termitière</title>
+<meta name="description" content="Testez vos connaissances sur La Termitière (latermitiere.com) et tentez de gagner une séance offerte ou une réduction à Maxi Gym.">
+<meta name="keywords" content="latermitiere, La Termitiere SARL U, quiz, jeu concours, Maxi Gym, Togo">
+
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; script-src 'self' https://www.googletagmanager.com 'unsafe-inline'; connect-src 'self' https://publier.latermitiere.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="images/logo/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-03MEMEM1W5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-03MEMEM1W5');
+</script>
+<style>
+  :root{ --gold:#E3A93A; --gold-dark:#B8862A; }
+  .quiz-wrap{ max-width:720px; margin:0 auto; }
+
+  /* ---- barre de progression ---- */
+  .quiz-progress-wrap{ display:flex; align-items:center; gap:14px; margin-bottom:26px; }
+  .quiz-progress-track{ flex:1; height:8px; border-radius:99px; background:var(--border); overflow:hidden; }
+  .quiz-progress-fill{ height:100%; width:0%; border-radius:99px; background:linear-gradient(90deg, var(--red), var(--gold)); transition:width .35s ease; }
+  .quiz-progress-label{ font-size:.8rem; font-weight:700; color:var(--accent); white-space:nowrap; }
+  .quiz-timer{
+    display:inline-flex; align-items:center; gap:5px; font-size:.8rem; font-weight:700; white-space:nowrap;
+    color:var(--text-muted); background:var(--bg-alt); border:1px solid var(--border); border-radius:99px; padding:5px 12px;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .quiz-timer--low{ color:var(--red); border-color:var(--red); animation:quiz-timer-pulse 1s ease-in-out infinite; }
+  @keyframes quiz-timer-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
+  .quiz-promo-time{ display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:.82rem; margin:14px 0 0; }
+
+  /* ---- carte question (une à la fois) ---- */
+  .quiz-question{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
+    padding:34px 30px; margin-bottom:24px; box-shadow:var(--shadow-md);
+    animation:quizIn .35s ease;
+  }
+  @keyframes quizIn{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+  .quiz-question h3{ margin:0 0 22px; font-size:1.22rem; line-height:1.4; }
+  .quiz-options{ display:flex; flex-direction:column; gap:12px; }
+  .quiz-option{
+    display:flex; align-items:center; gap:14px; padding:14px 16px; border:2px solid var(--border);
+    border-radius:var(--radius-sm); cursor:pointer; transition:border-color .16s ease, background .16s ease, transform .16s ease;
+  }
+  .quiz-option:hover{ border-color:var(--red-light); transform:translateX(4px); }
+  .quiz-option input{ position:absolute; opacity:0; width:0; height:0; }
+  .quiz-option-badge{
+    width:34px; height:34px; flex-shrink:0; border-radius:50%; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.88rem;
+    color:var(--text-muted); transition:all .16s ease;
+  }
+  .quiz-option.selected{ border-color:var(--red); background:rgba(189,60,47,.07); transform:translateX(4px); }
+  .quiz-option.selected .quiz-option-badge{ background:var(--red); border-color:var(--red); color:#fff; }
+  .quiz-option-text{ font-size:.98rem; }
+
+  .quiz-nav{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .quiz-nav .btn[disabled]{ opacity:.35; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+  .quiz-nav-spacer{ visibility:hidden; }
+
+  /* ---- résultat ---- */
+  #quiz-result{ text-align:center; }
+  .quiz-tier-icon{
+    display:block; width:40px; height:40px; margin:0 auto 4px; color:var(--gold);
+  }
+  .quiz-tier-icon svg{ display:block; width:100%; height:100%; }
+  .quiz-score-ring{
+    width:150px; height:150px; margin:6px auto 18px; border-radius:50%; border:6px solid var(--gold);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:var(--shadow-md);
+    background:var(--bg-card);
+  }
+  .quiz-score-ring.tier-low{ border-color:var(--border); }
+  .quiz-score-ring.tier-mid{ border-color:var(--red); }
+  .quiz-score{ font-family:var(--font-display); font-size:2.5rem; font-weight:700; color:var(--ink); line-height:1; margin:2px 0 0; }
+  .quiz-score-caption{ font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); }
+
+  .quiz-prize{
+    background:linear-gradient(135deg, rgba(227,169,58,.12), rgba(189,60,47,.04));
+    border:2px dashed var(--gold); border-radius:var(--radius-md); padding:28px; margin:26px 0; text-align:left;
+  }
+  .quiz-prize-heading{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.1rem; color:var(--ink); margin:0 0 12px; }
+  .quiz-prize-heading svg{ width:26px; height:26px; color:var(--gold-dark); flex-shrink:0; }
+  .quiz-claim-form label{ font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:6px; display:block; }
+  .quiz-claim-form input{
+    width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:var(--radius-sm);
+    font-family:var(--font-body); font-size:.95rem; margin-bottom:16px; background:var(--bg-card); color:var(--text-main);
+  }
+  .quiz-result-actions{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:24px; }
+
+  .hp-field{ position:absolute; left:-9999px; }
+  [hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html#accueil" class="brand">
+      <span class="brand-logo-wrap"><img src="images/logo/logo.png" alt="La Termitière"></span>
+      <span>LA TERMITIÈRE</span>
+    </a>
+
+    <nav class="main-nav" id="main-nav">
+      <a href="index.html#accueil">Accueil</a>
+      <a href="index.html#secteurs">Secteurs</a>
+      <a href="quiz.html" class="active">Gagner</a>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+          L’entreprise
+          <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="apropos.html">À propos</a>
+          <a href="equipe.html">Équipe</a>
+          <a href="carrieres.html">Carrières</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+          Découvrir
+          <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="galerie.html">Galerie</a>
+          <a href="promotions.html">Promotions</a>
+        </div>
+      </div>
+      <a href="contact.html" class="nav-cta">Nous contacter</a>
+    </nav>
+
+    <div class="nav-controls">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Basculer le mode sombre">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+      <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="main-nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= EN-TÊTE ================= -->
+  <div class="color-band" style="background:var(--red); padding:94px 0 22px;">
+    <div class="container">
+      <h2>Gagnez des séances gratuites à Maxi Gym !</h2>
+      <p>Répondez à notre petit quiz et tentez de gagner une séance offerte ou une réduction à Maxi Gym</p>
+    </div>
+  </div>
+
+  <section class="pattern-bg">
+    <div class="page-watermark" style="background-image:url('images/logo/logo.png');" aria-hidden="true"></div>
+    <div class="container quiz-wrap">
+
+      <div id="quiz-intro">
+        <div class="section-head center" data-reveal style="margin-left:auto;margin-right:auto;">
+          <p class="eyebrow" style="justify-content:center;">Petit jeu</p>
+          <h2>Connaissez-vous vraiment La Termitière ?</h2>
+          <p>Un petit quiz, quelques questions faciles sur nos secteurs, avec une chance de gagner une séance offerte ou une réduction à Maxi Gym selon votre score. Les réponses se trouvent sur le site !</p>
+          <p class="quiz-promo-time" style="color:var(--gold-dark); justify-content:center;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            2 minutes chrono
+          </p>
+        </div>
+        <div style="text-align:center; margin-top:24px;">
+          <button class="btn btn-primary" id="quiz-start">Commencer le quiz</button>
+        </div>
+      </div>
+
+      <div id="quiz-form" hidden>
+        <div class="quiz-progress-wrap">
+          <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+          <span class="quiz-progress-label" id="quiz-progress-label">Question 1 / 12</span>
+          <span class="quiz-timer" id="quiz-timer" title="Temps restant">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            2:00
+          </span>
+        </div>
+        <div id="quiz-questions"></div>
+        <div class="quiz-nav">
+          <button class="btn btn-secondary" id="quiz-prev" type="button">← Précédent</button>
+          <button class="btn btn-primary" id="quiz-next" type="button" disabled>Suivant →</button>
+        </div>
+      </div>
+
+      <div id="quiz-result" hidden>
+        <span class="quiz-tier-icon" id="quiz-tier-icon" aria-hidden="true"></span>
+        <div class="quiz-score-ring" id="quiz-score-ring">
+          <div class="quiz-score"><span id="quiz-score-value">0</span>/<span id="quiz-score-total">0</span></div>
+          <span class="quiz-score-caption">bonnes réponses</span>
+        </div>
+        <p id="quiz-appreciation" style="color:var(--text-muted);"></p>
+
+        <div class="quiz-prize" id="quiz-prize-block" hidden>
+          <p class="quiz-prize-heading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 13h18M12 9v12"/><path d="M12 9C9 9 8 6.5 8.5 5S11 3 12 5c1-2 3-2 3.5-.5S15 9 12 9z"/></svg>
+            <span>Bravo, vous avez gagné !</span>
+          </p>
+          <p id="quiz-prize-text" style="font-weight:600; color:var(--ink); margin:0 0 18px;"></p>
+
+          <form id="quiz-claim-form" class="quiz-claim-form">
+            <label for="qc-name">Votre nom</label>
+            <input id="qc-name" name="name" required />
+            <label for="qc-phone">Votre téléphone</label>
+            <input id="qc-phone" name="phone" type="tel" required />
+            <div class="hp-field" aria-hidden="true">
+              <label for="qc-bot">Ne pas remplir</label>
+              <input id="qc-bot" name="bot-field" tabindex="-1" autocomplete="off" />
+            </div>
+            <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Recevoir mon code</button>
+            <p class="form-note" id="quiz-claim-msg" style="margin-top:10px;"></p>
+          </form>
+
+          <div id="quiz-claim-done" hidden>
+            <p style="color:var(--text-main);">Merci ! Présentez-vous à Maxi Gym avec votre nom pour profiter de votre lot.</p>
+          </div>
+        </div>
+
+        <div class="quiz-result-actions">
+          <button class="btn btn-secondary" id="quiz-restart">Rejouer</button>
+          <a href="index.html#secteurs" class="btn btn-primary">Découvrir nos secteurs</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <a href="index.html#accueil" class="brand">
+      <span class="brand-logo-wrap" style="width:40px;height:40px;padding:5px;"><img src="images/logo/logo.png" alt="La Termitière"></span>
+      <span>
+        LA TERMITIÈRE
+        <small style="display:block; font-weight:500; font-size:.7rem; letter-spacing:.02em; color:var(--text-muted);">Toujours dans l'action !</small>
+      </span>
+    </a>
+    <nav>
+      <a href="apropos.html">À propos</a>
+      <a href="equipe.html">Équipe</a>
+      <a href="index.html#secteurs">Secteurs</a>
+      <a href="galerie.html">Galerie</a>
+      <a href="promotions.html">Promotions</a>
+      <a href="quiz.html">Gagner</a>
+      <a href="carrieres.html">Carrières</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+
+
+  <div class="container footer-fine">
+    © 2026 La Termitière. Site vitrine. Tous droits réservés.
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/quiz.js"></script>
+</body>
+</html>

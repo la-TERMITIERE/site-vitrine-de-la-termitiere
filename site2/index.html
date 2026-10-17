@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Termitière — Sport, Construction, Garderie, Agro-élevage & BTP</title>
 <meta name="description" content="La Termitière (latermitiere.com) : Groupe multisectoriel au Togo. Services en BTP & bâtiment (Maxi Bâtiment), foncier (La Foncière, fonciere), briqueterie (Brique, briquiterie), Agro-élevage (Agro-éleveage, élevage, agriculture), logistique & événementiel (evenementiel), garderie pour enfant, éducation, formation, cosmétique (cometique) et salle de gym (Maxi Gym).">
-<meta name="keywords" content="latermitiere, latermi, later, temitiere, termite, BTP, batiment, foncier, fonciere, Brique, briquiterie, Maxi, maxi, Agro, logistique, evenementiel, garderie, education, formation, cometique, enfant, agriculture, sport salle de gym, gym, elevage, carriere, offre, promotion, construction, Agro-éleveage, Togo, Lomé, Kara">
+<meta name="keywords" content="latermitiere, La Termitiere SARL U, SARL U, MAXI, ferme, latermi, later, temitiere, termite, BTP, batiment, foncier, fonciere, Brique, briquiterie, Maxi, maxi, Agro, logistique, evenementiel, garderie, education, formation, cometique, enfant, agriculture, sport salle de gym, gym, elevage, carriere, offre, promotion, construction, Agro-éleveage, Togo, Lomé, Kara, BTP Togo, batiment Togo, briqueterie Togo, foncier Togo, agro-élevage Togo, ferme Togo, garderie Togo, logistique Togo, cosmétique Togo, sport Togo, gym Togo, construction Togo, evenementiel Togo, SARL U Togo, Maxi Togo">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
@@ -21,7 +21,7 @@
 <meta property="twitter:description" content="La Termitière : Solutions de confiance en bâtiment, foncier, briqueterie, Agro-élevage, événementiel, éducation (garderie d'enfants) et salle de gym (Maxi Gym).">
 <meta property="twitter:image" content="https://latermitiere.com/images/logo/logo.png">
 
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; connect-src 'self' https://contact.latermitiere.com; frame-src 'self'; base-uri 'self'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; script-src 'self' https://www.googletagmanager.com 'unsafe-inline'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self';">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
@@ -36,6 +36,8 @@
   "name": "La Termitière",
   "alternateName": [
     "latermitiere",
+    "La Termitiere SARL U",
+    "LA TERMITIERE SARL U",
     "latermi",
     "later",
     "temitiere",
@@ -68,6 +70,34 @@
   ]
 }
 </script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-03MEMEM1W5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-03MEMEM1W5');
+</script>
+<style>
+  .quiz-promo-band{
+    background:linear-gradient(120deg, var(--red-dark) 0%, var(--red) 55%, var(--red-light) 100%);
+    padding:50px 0;
+  }
+  .quiz-promo-inner{ display:flex; align-items:center; gap:28px; flex-wrap:wrap; }
+  .quiz-promo-icon{
+    width:64px; height:64px; flex-shrink:0; border-radius:50%; background:#231f20;
+    border:2px solid rgba(255,255,255,.4); color:#fff; display:flex; align-items:center; justify-content:center;
+  }
+  .quiz-promo-icon svg{ width:32px; height:32px; }
+  .quiz-promo-text{ flex:1; min-width:240px; }
+  .quiz-promo-text h2{ color:#fff; margin:2px 0 8px; font-size:clamp(1.4rem,3vw,1.9rem); }
+  .quiz-promo-text p{ color:rgba(255,255,255,.85); margin:0; max-width:560px; }
+  .quiz-promo-time{ display:inline-flex; align-items:center; gap:6px; color:#fff; font-weight:700; font-size:.82rem; margin-top:10px; }
+  .quiz-promo-btn{ background:#231f20; border-color:#231f20; color:#fff; flex-shrink:0; }
+  .quiz-promo-btn:hover{ background:#000; border-color:#000; transform:translateY(-2px); }
+  @media (max-width:700px){ .quiz-promo-inner{ text-align:center; justify-content:center; } .quiz-promo-icon{ margin:0 auto; } .quiz-promo-time{ justify-content:center; } }
+</style>
 </head>
 <body>
 
@@ -84,14 +114,31 @@
 
     <nav class="main-nav" id="main-nav">
       <a href="index.html#accueil">Accueil</a>
-      <a href="index.html#apropos">À propos</a>
-      <a href="equipe.html">Équipe</a>
       <a href="index.html#secteurs">Secteurs</a>
-      <a href="galerie.html">Galerie</a>
-      <a href="promotions.html">Promotions</a>
-      <a href="carrieres.html">Carrières</a>
-      <a href="index.html#faq">FAQ</a>
-      <a href="index.html#contact" class="nav-cta">Nous contacter</a>
+      <a href="quiz.html">Gagner</a>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+          L’entreprise
+          <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="apropos.html">À propos</a>
+          <a href="equipe.html">Équipe</a>
+          <a href="carrieres.html">Carrières</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+          Découvrir
+          <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="galerie.html">Galerie</a>
+          <a href="promotions.html">Promotions</a>
+        </div>
+      </div>
+      <a href="contact.html" class="nav-cta">Nous contacter</a>
     </nav>
 
     <div class="nav-controls">
@@ -116,7 +163,7 @@
       <p class="hero-sector-caption" id="hero-sector-caption">&nbsp;</p>
       <a href="#secteurs" class="btn btn-primary hero-cta" id="hero-sector-cta">En savoir plus</a>
     </div>
-    <a href="#apropos" class="hero-scroll-cue" aria-label="Défiler vers le bas">
+    <a href="#secteurs" class="hero-scroll-cue" aria-label="Défiler vers le bas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12l7 7 7-7"/></svg>
     </a>
   </section>
@@ -129,7 +176,7 @@
       <p class="lede" style="color:var(--text-muted); margin-left:auto; margin-right:auto;">Sport &amp; santé, matériaux de construction, formation et éducation, élevage et agriculture, bâtiment : plusieurs secteurs d'activité, une seule ambition, créer de la valeur ajoutée d'ici 2050.</p>
       <div class="hero-actions" style="justify-content:center;">
         <a href="#secteurs" class="btn btn-primary">Découvrir nos secteurs</a>
-        <a href="#contact" class="btn btn-secondary" style="color:var(--red); border-color:var(--red);">Nous contacter</a>
+        <a href="contact.html" class="btn btn-secondary" style="color:var(--red); border-color:var(--red);">Nous contacter</a>
       </div>
 
       <div class="hero-stats" style="border-top-color:var(--line); margin-top:60px;">
@@ -151,46 +198,25 @@
 
   <div class="photo-strip" style="background-image:url('images/garderie/photos/garderie-1.jpg');"></div>
 
-  <!-- ================= À PROPOS / VISION (éditorial) ================= -->
-  <section id="apropos" class="pattern-bg">
-    <div class="container">
-      <div class="section-head center" data-reveal style="margin-left:auto;margin-right:auto;">
-        <p class="eyebrow" style="justify-content:center;">Notre histoire</p>
-        <h2>Une aventure entrepreneuriale locale</h2>
-      </div>
-
-      <div class="about-editorial" data-reveal>
-        <div class="about-editorial-photo" style="background-image:url('images/equipe/equipe-groupe-complet.jpg'); background-position:center 20%;"></div>
-        <div class="about-editorial-text">
-          <p>La Termitière est née d'une conviction simple : les richesses de demain se construisent ici, au Togo, maintenant. Ce qui a commencé comme un seul secteur d'activité s'est étendu, année après année, à plusieurs pôles différents : sport et santé, construction, formation et éducation, agro-élevage et bâtiment, tous portés par la même exigence de qualité et le même ancrage local.</p>
-          <p>Derrière chaque secteur, une équipe de terrain, formée et engagée, qui connaît son métier et le pratique avec rigueur. C'est cette qualité humaine, avant tout, qui fait la différence.</p>
-
-          <div class="vision-quote vision-quote--split" style="margin-top:28px;">
-            <div class="vision-quote-photo" style="background-image:url('images/vision/vision-siege.jpg');"></div>
-            <div>
-              <p class="eyebrow">Notre vision</p>
-              <p>« Mobiliser les richesses stockées dans le pays pour créer de la valeur ajoutée, entretenir les flammes de l'espoir de la jeunesse africaine et donner la fierté à la race noire d'ici 2050. »</p>
-              <p class="vision-meta">— La Termitière</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <a href="equipe.html" class="team-teaser" data-reveal>
+  <!-- ================= À PROPOS (aperçu) ================= -->
+  <section class="pattern-bg">
+    <div class="container" style="max-width:900px;">
+      <a href="apropos.html" class="team-teaser" data-reveal>
         <div>
-          <p class="eyebrow" style="margin-bottom:6px;">Notre équipe</p>
-          <h3 style="margin:0 0 6px;">Des professionnels formés, engagés, et proches de vous</h3>
-          <p style="color:var(--text-muted); margin:0;">Découvrez les visages et les valeurs qui font La Termitière au quotidien.</p>
+          <p class="eyebrow" style="margin-bottom:6px;">Notre histoire</p>
+          <h3 style="margin:0 0 6px;">+5 ans au service de nos clients, une vision jusqu'en 2050</h3>
+          <p style="color:var(--text-muted); margin:0;">Découvrez notre histoire, notre vision et les valeurs qui nous guident au quotidien.</p>
         </div>
         <span class="team-teaser-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </a>
-
-      <div class="stats-row" data-reveal>
-        <div class="stat-card"><strong>8</strong><span>secteurs actifs</span></div>
-        <div class="stat-card"><strong>3</strong><span>villes couvertes</span></div>
-        <div class="stat-card"><strong>1</strong><span>équipe, une vision commune</span></div>
-        <div class="stat-card"><strong>2050</strong><span>notre horizon</span></div>
-      </div>
+      <a href="equipe.html" class="team-teaser" data-reveal style="margin-top:16px;">
+        <div>
+          <p class="eyebrow" style="margin-bottom:6px;">Notre équipe</p>
+          <h3 style="margin:0 0 6px;">Des professionnels formés, engagés, et proches de vous</h3>
+          <p style="color:var(--text-muted); margin:0;">Découvrez les visages qui font La Termitière au quotidien.</p>
+        </div>
+        <span class="team-teaser-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
     </div>
   </section>
 
@@ -206,6 +232,7 @@
 
   <!-- ================= SECTEURS (cartes) ================= -->
   <section id="secteurs" class="pattern-bg">
+    <div class="page-watermark" style="background-image:url('images/logo/logo.png');" aria-hidden="true"></div>
     <div class="container">
       <div class="section-head center" data-reveal style="margin-left:auto;margin-right:auto;">
         <p class="eyebrow" style="justify-content:center;">À choisir selon votre besoin</p>
@@ -218,169 +245,53 @@
     </div>
   </section>
 
-  <div class="photo-strip" style="background-image:url('images/maxi-batiment/photos/maxi-batiment-5.jpg');"></div>
-
-  <!-- ================= FAQ ================= -->
-  <!-- ================= BANDE : QUESTIONS ================= -->
-  <div class="color-band" style="background:var(--red);">
-    <div class="container">
-      <h2>Des questions ?</h2>
-      <p>On a probablement déjà la réponse</p>
-    </div>
-  </div>
-
-  <!-- ================= FAQ ================= -->
-  <section id="faq" class="pattern-bg">
-    <div class="container">
-      <div class="section-head center" data-reveal>
-        <p class="eyebrow" style="justify-content:center;">Questions fréquentes</p>
-        <h2>Foire aux questions</h2>
-        <p>Retrouvez les réponses aux questions les plus fréquentes sur nos activités.</p>
+  <!-- ================= JEU CONCOURS QUIZ ================= -->
+  <section class="quiz-promo-band">
+    <div class="container quiz-promo-inner" data-reveal>
+      <div class="quiz-promo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 13h18M12 9v12"/><path d="M12 9C9 9 8 6.5 8.5 5S11 3 12 5c1-2 3-2 3.5-.5S15 9 12 9z"/></svg>
       </div>
-
-      <div class="faq-accordion" data-reveal>
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            <span>Quels sont les différents secteurs d'activité de La Termitière ?</span>
-            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>Nous intervenons aujourd'hui à travers huit secteurs actifs : Maxi Gym (salle de sport et santé), la Briqueterie (matériaux de construction), la Garderie La Termitière (accueil des tout-petits), Maxi Agro (élevage et agriculture), Maxi Bâtiment (BTP), Maxi Logistique (prestations événementielles), La Foncière (sécurisation de dossiers de terrain) et Maxi Cosmétique (produits de beauté et de soin).</p>
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            <span>Où se situent exactement vos installations ?</span>
-            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>Chaque secteur a son propre site : Maxi Gym est à Agoè-Daliko (Lomé) et à Kara (EWAOU, en face du Foyer Jean 23), la Briqueterie et Maxi Bâtiment sont à Agoè-Daliko, la Garderie est à Amarinta, la ferme Maxi Agro se trouve à Agbelouvé, Maxi Logistique intervient à Kara, Sokodé et Lomé, et Maxi Cosmétique a deux boutiques, à Agoè et à Amarinta. Les détails précis sont indiqués sur la fiche de chaque secteur.</p>
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            <span>Comment obtenir plus d'informations ou un devis sur un secteur ?</span>
-            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>Le plus simple est de remplir le formulaire ci-dessous en précisant le secteur concerné, ou de nous appeler directement au 96 09 49 49 (Lomé) ou au 96 06 09 09 (Kara). Nous revenons vers vous rapidement pour répondre à votre demande.</p>
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            <span>Les briques de la Briqueterie sont-elles livrées sur chantier ?</span>
-            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>Oui. Vous avez le choix entre un retrait directement à l'usine (Agoè-Daliko) ou une livraison sécurisée jusqu'à votre chantier, selon les tarifs indiqués dans la grille « avec transport » du secteur Briqueterie.</p>
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question" aria-expanded="false">
-            <span>Quelles sont les formules proposées par la Garderie La Termitière ?</span>
-            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>Nous accueillons les enfants de 6 mois à 5 ans, avec deux formules au choix : une inscription à l'année avec suivi régulier, ou une garde occasionnelle à la journée pour les besoins ponctuels. La cantine est incluse dans les deux formules.</p>
-          </div>
-        </div>
+      <div class="quiz-promo-text">
+        <p class="eyebrow" style="color:#fff;">Jeu concours</p>
+        <h2>Gagnez des séances gratuites à Maxi Gym !</h2>
+        <p>Répondez à notre petit quiz sur La Termitière et tentez de remporter une séance offerte ou une réduction à Maxi Gym.</p>
+        <p class="quiz-promo-time">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          2 minutes chrono
+        </p>
       </div>
+      <a href="quiz.html" class="btn quiz-promo-btn">Je tente ma chance →</a>
     </div>
   </section>
 
-  <div class="photo-strip" style="background-image:url('images/salle-de-sport/photos/salle-de-sport-2.jpg');"></div>
+  <div class="photo-strip" style="background-image:url('images/maxi-batiment/photos/maxi-batiment-5.jpg');"></div>
 
-  <!-- ================= CONTACT ================= -->
-  <section id="contact" class="contact">
-    <div class="container contact-grid">
-      <div data-reveal>
-        <p class="eyebrow" style="color:#e88f83;">Contact</p>
-        <h2>Parlons de votre projet</h2>
-        <p style="color:rgba(255,255,255,.65);max-width:420px;">Une question sur l'un de nos secteurs ? Écrivez-nous ou passez par les réseaux sociaux.</p>
+  <!-- ================= FAQ + CONTACT (aperçus) ================= -->
+  <div class="color-band" style="background:var(--red);">
+    <div class="container">
+      <h2>Des questions ? Un projet ?</h2>
+      <p>On a probablement déjà la réponse, ou on est à votre écoute</p>
+    </div>
+  </div>
 
-        <ul class="contact-list">
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 6l9 7 9-7"/></svg>
-            <a href="mailto:latermitiere2021@gmail.com">latermitiere2021@gmail.com</a>
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h4l2 5-2.5 1.5a12 12 0 006 6L15 14l5 2v4a2 2 0 01-2 2C9.5 22 2 14.5 2 6a2 2 0 012-2z"/></svg>
-            <a href="tel:+22896094949">96 09 49 49 (Lomé)</a>
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h4l2 5-2.5 1.5a12 12 0 006 6L15 14l5 2v4a2 2 0 01-2 2C9.5 22 2 14.5 2 6a2 2 0 012-2z"/></svg>
-            <a href="tel:+22896060909">96 06 09 09 (Kara)</a>
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M14 9h2V6h-2c-1.7 0-3 1.3-3 3v2H9v3h2v6h3v-6h2.2l.8-3H14V9z"/></svg>
-            <a href="https://www.facebook.com/share/1DG9QBoo4j/" target="_blank" rel="noopener noreferrer">Facebook — La Termitière</a>
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l6 3-6 3z" fill="currentColor" stroke="none"/></svg>
-            <a href="https://www.youtube.com/@la_termitiere" target="_blank" rel="noopener noreferrer">YouTube — @la_termitiere</a>
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 8.5a4.5 4.5 0 104.5 4.5V2h3.3c.2 2.4 1.9 4.3 4.2 4.6v3.3a7.8 7.8 0 01-4.2-1.2v6.3a7.5 7.5 0 11-7.5-7.5c.24 0 .48.01.7.04v3.4A4.5 4.5 0 009 8.5z" fill="currentColor" stroke="none"/></svg>
-            <a href="https://www.tiktok.com/@la_termitiere" target="_blank" rel="noopener noreferrer">TikTok — @la_termitiere</a>
-          </li>
-        </ul>
-
-        <div class="social-row">
-          <a href="mailto:latermitiere2021@gmail.com" aria-label="Email">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 6l9 7 9-7"/></svg>
-          </a>
-          <a href="tel:+22896094949" aria-label="Téléphone Lomé">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h4l2 5-2.5 1.5a12 12 0 006 6L15 14l5 2v4a2 2 0 01-2 2C9.5 22 2 14.5 2 6a2 2 0 012-2z"/></svg>
-          </a>
-          <a href="https://www.facebook.com/share/1DG9QBoo4j/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9h2V6h-2c-1.7 0-3 1.3-3 3v2H9v3h2v6h3v-6h2.2l.8-3H14V9z"/></svg>
-          </a>
-          <a href="https://www.youtube.com/@la_termitiere" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l6 3-6 3z" fill="currentColor" stroke="none"/></svg>
-          </a>
-          <a href="https://www.tiktok.com/@la_termitiere" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 8.5a4.5 4.5 0 104.5 4.5V2h3.3c.2 2.4 1.9 4.3 4.2 4.6v3.3a7.8 7.8 0 01-4.2-1.2v6.3a7.5 7.5 0 11-7.5-7.5c.24 0 .48.01.7.04v3.4A4.5 4.5 0 009 8.5z" fill="currentColor" stroke="none"/></svg>
-          </a>
-        </div>
-      </div>
-
-      <form class="contact-form" id="contact-form" data-reveal novalidate name="contact" method="POST">
-        <div id="f-sector-field" style="display:none;">
-          <label for="f-sector">Secteur concerné</label>
-          <input type="text" id="f-sector" name="sector" value="" readonly>
-        </div>
+  <section class="pattern-bg">
+    <div class="container" style="max-width:900px;">
+      <a href="faq.html" class="team-teaser" data-reveal>
         <div>
-          <label for="f-name">Nom complet</label>
-          <input type="text" id="f-name" name="name" placeholder="Votre nom" required>
+          <p class="eyebrow" style="margin-bottom:6px;">Questions fréquentes</p>
+          <h3 style="margin:0 0 6px;">Nos secteurs, nos implantations, nos formules</h3>
+          <p style="color:var(--text-muted); margin:0;">Retrouvez les réponses aux questions les plus fréquentes sur nos activités.</p>
         </div>
-        <div class="form-row">
-          <div>
-            <label for="f-email">Email</label>
-            <input type="email" id="f-email" name="email" placeholder="vous@exemple.com">
-          </div>
-          <div>
-            <label for="f-phone">Téléphone</label>
-            <input type="tel" id="f-phone" name="phone" placeholder="Si pas d'email, votre numéro">
-          </div>
-        </div>
-        <p class="form-note" style="margin:-8px 0 16px;">Merci de renseigner au moins l'un des deux : email ou téléphone.</p>
+        <span class="team-teaser-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="contact.html" class="team-teaser" data-reveal style="margin-top:16px;">
         <div>
-          <label for="f-message">Message</label>
-          <textarea id="f-message" name="message" placeholder="Votre message" required></textarea>
+          <p class="eyebrow" style="margin-bottom:6px;">Contact</p>
+          <h3 style="margin:0 0 6px;">Parlons de votre projet</h3>
+          <p style="color:var(--text-muted); margin:0;">Formulaire, téléphone, email, réseaux sociaux et localisation du siège.</p>
         </div>
-
-        <div class="hp-field" aria-hidden="true">
-          <label for="bot-field">Ne pas remplir</label>
-          <input type="text" id="bot-field" name="bot-field" tabindex="-1" autocomplete="off">
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="justify-content:center;">Envoyer le message</button>
-        <p class="form-note" id="form-feedback">Vos coordonnées ne servent qu'à vous répondre ; elles ne sont jamais partagées.</p>
-      </form>
+        <span class="team-teaser-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
     </div>
   </section>
 
@@ -404,14 +315,15 @@
       </span>
     </a>
     <nav>
-      <a href="index.html#apropos">À propos</a>
+      <a href="apropos.html">À propos</a>
       <a href="equipe.html">Équipe</a>
       <a href="index.html#secteurs">Secteurs</a>
       <a href="galerie.html">Galerie</a>
       <a href="promotions.html">Promotions</a>
+      <a href="quiz.html">Gagner</a>
       <a href="carrieres.html">Carrières</a>
-      <a href="index.html#faq">FAQ</a>
-      <a href="index.html#contact">Contact</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
     </nav>
   </div>
 
@@ -423,5 +335,6 @@
 
 <script src="js/sector-data.js"></script>
 <script src="js/main.js"></script>
+<script src="js/chatbot.js"></script>
 </body>
 </html>

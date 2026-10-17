@@ -1,5 +1,10 @@
 name: Build, Push & Deploy — La Termitière
 
+# Ce fichier est identique sur les deux depots (personnel et entreprise). Le
+# declenchement automatique reste actif des deux cotes, mais les jobs
+# ci-dessous verifient github.repository et ne s'executent reellement que
+# depuis le depot de l'entreprise (voir le "if:" sur build/deploy) — le
+# depot personnel n'est donc plus jamais un deployeur actif.
 on:
   push:
     branches:
@@ -24,6 +29,7 @@ env:
   CONTACT_IMAGE: ghcr.io/la-termitiere/termitiere-contact-proxy
   OAUTH_IMAGE: ghcr.io/la-termitiere/termitiere-oauth-proxy
   PUBLISH_IMAGE: ghcr.io/la-termitiere/termitiere-publish-proxy
+  CHAT_IMAGE: ghcr.io/la-termitiere/termitiere-chat-proxy
 
 
 # ============================================================
@@ -33,6 +39,11 @@ env:
 jobs:
 
   build:
+
+    # Garde-fou : ce job ne s'execute que depuis le depot de l'entreprise, meme
+    # si ce fichier (identique) est aussi present sur le depot personnel — evite
+    # tout risque de deploiement concurrent depuis les deux depots a la fois.
+    if: github.repository == 'la-TERMITIERE/site-vitrine-de-la-termitiere'
 
     runs-on: ubuntu-latest
 
@@ -143,6 +154,25 @@ jobs:
 
 
       # --------------------------------------------------------
+      # BUILD CHAT PROXY (assistant IA)
+      # Contexte = racine du depot : l'image embarque les donnees du site
+      # --------------------------------------------------------
+
+      - name: Build Chat Proxy
+        run: |
+          set -e
+
+          SHA="${GITHUB_SHA::7}"
+
+          echo "======================================="
+          echo "BUILD CHAT PROXY"
+          echo "Image: ${CHAT_IMAGE}:${SHA}"
+          echo "======================================="
+
+          docker build             -f chat-proxy/Dockerfile             -t "${CHAT_IMAGE}:${SHA}"             -t "${CHAT_IMAGE}:latest"             .
+
+
+      # --------------------------------------------------------
       # PUSH ALL IMAGES
       # --------------------------------------------------------
 
@@ -169,6 +199,9 @@ jobs:
           docker push "${PUBLISH_IMAGE}:${SHA}"
           docker push "${PUBLISH_IMAGE}:latest"
 
+          docker push "${CHAT_IMAGE}:${SHA}"
+          docker push "${CHAT_IMAGE}:latest"
+
           echo
           echo "======================================="
           echo "ALL IMAGES PUSHED SUCCESSFULLY"
@@ -180,6 +213,8 @@ jobs:
   # ============================================================
 
   deploy:
+
+    if: github.repository == 'la-TERMITIERE/site-vitrine-de-la-termitiere'
 
     needs:
       - build
@@ -276,6 +311,7 @@ jobs:
             CONTACT_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-contact-proxy:${TAG}
             OAUTH_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-oauth-proxy:${TAG}
             PUBLISH_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-publish-proxy:${TAG}
+            CHAT_PROXY_IMAGE=ghcr.io/la-termitiere/termitiere-chat-proxy:${TAG}
 
             DOMAIN_SITE=latermitiere.com
             DOMAIN_CONTACT=contact.latermitiere.com
@@ -330,6 +366,8 @@ jobs:
               docker logs --tail 100 termitiere-oauth-proxy || true
 
               docker logs --tail 100 termitiere-publish-proxy || true
+
+              docker logs --tail 100 termitiere-chat-proxy || true
 
 
               if [ -z "$OLD_TAG" ]; then
@@ -492,7 +530,7 @@ jobs:
             echo "Deployment images:"
 
             grep -E \
-              '^(VITRINE_IMAGE|CONTACT_PROXY_IMAGE|OAUTH_PROXY_IMAGE|PUBLISH_PROXY_IMAGE)=' \
+              '^(VITRINE_IMAGE|CONTACT_PROXY_IMAGE|OAUTH_PROXY_IMAGE|PUBLISH_PROXY_IMAGE|CHAT_PROXY_IMAGE)=' \
               deploy/.env.deploy
 
 
@@ -566,7 +604,7 @@ jobs:
               termitiere-vitrine \
               termitiere-contact-proxy \
               termitiere-oauth-proxy \
-              termitiere-publish-proxy
+              termitiere-publish-proxy               termitiere-chat-proxy
             do
 
               if ! docker inspect "$CONTAINER" >/dev/null 2>&1; then
@@ -614,7 +652,7 @@ jobs:
               termitiere-vitrine \
               termitiere-contact-proxy \
               termitiere-oauth-proxy \
-              termitiere-publish-proxy
+              termitiere-publish-proxy               termitiere-chat-proxy
             do
 
               if ! docker inspect "$CONTAINER" \
@@ -737,6 +775,30 @@ jobs:
               echo "OAuth proxy failed"
 
               docker logs --tail 100 termitiere-oauth-proxy || true
+
+              DEPLOY_OK=false
+
+            fi
+
+
+            # ============================================================
+            # CHAT PROXY HEALTH CHECK
+            # ============================================================
+
+            echo
+            echo "Checking chat proxy..."
+
+
+            if docker exec termitiere-chat-proxy               wget -qO-               http://127.0.0.1:8083/health               >/dev/null 2>&1
+            then
+
+              echo "Chat proxy OK"
+
+            else
+
+              echo "Chat proxy failed"
+
+              docker logs --tail 100 termitiere-chat-proxy || true
 
               DEPLOY_OK=false
 

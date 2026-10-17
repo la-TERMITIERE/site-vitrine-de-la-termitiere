@@ -1,0 +1,16 @@
+{
+  "items": [
+    { "title": "Combien de secteurs d'activité La Termitière compte-t-elle aujourd'hui ?", "optionA": "5", "optionB": "8", "optionC": "10", "optionD": "12", "correct": "B" },
+    { "title": "Où se trouve la ferme Maxi Agro ?", "optionA": "Agbélouvé", "optionB": "Kara", "optionC": "Sokodé", "optionD": "Aného", "correct": "A" },
+    { "title": "Dans quelles villes trouve-t-on Maxi Gym ?", "optionA": "Lomé et Sokodé", "optionB": "Kara et Aného", "optionC": "Lomé et Kara", "optionD": "Lomé uniquement", "correct": "C" },
+    { "title": "La Garderie La Termitière accueille les enfants de quel âge ?", "optionA": "6 mois à 5 ans", "optionB": "1 an à 3 ans", "optionC": "3 ans à 6 ans", "optionD": "2 ans à 5 ans", "correct": "A" },
+    { "title": "Quel secteur s'occupe de la sécurisation des dossiers de terrain ?", "optionA": "Maxi Bâtiment", "optionB": "La Foncière", "optionC": "Maxi Logistique", "optionD": "La Briqueterie", "correct": "B" },
+    { "title": "Quel est l'horizon de la vision de La Termitière ?", "optionA": "2030", "optionB": "2040", "optionC": "2050", "optionD": "2060", "correct": "C" },
+    { "title": "Depuis combien d'années La Termitière est-elle active ?", "optionA": "+1 an", "optionB": "+5 ans", "optionC": "+10 ans", "optionD": "+20 ans", "correct": "B" },
+    { "title": "Avant une séance de sport intense, il est recommandé de :", "optionA": "Ne rien faire", "optionB": "S'échauffer progressivement", "optionC": "Manger lourdement", "optionD": "Dormir", "correct": "B" },
+    { "title": "Quel professionnel est chargé de la conception architecturale d'un bâtiment ?", "optionA": "Architecte", "optionB": "Comptable", "optionC": "Commercial", "optionD": "Logisticien", "correct": "A" },
+    { "title": "Quelle est la période idéale pour semer les cultures pluviales ?", "optionA": "Saison sèche", "optionB": "Début de saison des pluies", "optionC": "Milieu de l'harmattan", "optionD": "Après récolte", "correct": "B" },
+    { "title": "Quelle est la première étape avant de lancer un projet ?", "optionA": "Dépenser le budget", "optionB": "Identifier et analyser le besoin", "optionC": "Recruter tout le personnel", "optionD": "Acheter les équipements", "correct": "B" },
+    { "title": "Le rôle principal d'un manager est de :", "optionA": "Organiser, diriger et coordonner une équipe", "optionB": "Faire tout le travail seul", "optionC": "Éviter toute décision", "optionD": "Réduire les effectifs systématiquement", "correct": "A" }
+  ]
+}

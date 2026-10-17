@@ -13,6 +13,26 @@ services:
 
     restart: unless-stopped
 
+    volumes:
+      # Contenu dynamique persistant
+      - termitiere-content:/content
+
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+
+        # Les données dynamiques vivent dans le volume persistant.
+        rm -rf /usr/share/nginx/html/data
+        ln -s /content/data /usr/share/nginx/html/data
+
+        rm -rf /usr/share/nginx/html/images/uploads
+        mkdir -p /usr/share/nginx/html/images
+        ln -s /content/images/uploads /usr/share/nginx/html/images/uploads
+
+        exec nginx -g 'daemon off;'
+
     networks:
       - deploy_default
 
@@ -33,6 +53,28 @@ services:
       BREVO_API_KEY: "${BREVO_API_KEY}"
       BREVO_SENDER_EMAIL: "${BREVO_SENDER_EMAIL}"
       ALLOWED_ORIGIN: "${ALLOWED_ORIGIN}"
+
+    networks:
+      - deploy_default
+
+
+  # ============================================================
+  # CHAT PROXY (assistant IA « Termi », joint via nginx sur /api/chat)
+  # ============================================================
+
+  chat-proxy:
+    image: ${CHAT_PROXY_IMAGE}
+
+    container_name: termitiere-chat-proxy
+
+    restart: unless-stopped
+
+    environment:
+      PORT: "8083"
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+      CHAT_MODEL: "${CHAT_MODEL:-gemini-3.5-flash-lite}"
+      RATE_LIMIT_PER_IP: "${CHAT_RATE_LIMIT_PER_IP:-30}"
+      DAILY_LIMIT: "${CHAT_DAILY_LIMIT:-1000}"
 
     networks:
       - deploy_default
@@ -60,7 +102,8 @@ services:
 
 
   # ============================================================
-  # PUBLISH PROXY (offres / promotions, sans compte GitHub)
+  # PUBLISH PROXY
+  # Offres / promotions
   # ============================================================
 
   publish-proxy:
@@ -70,16 +113,35 @@ services:
 
     restart: unless-stopped
 
+    volumes:
+      # Même contenu persistant que la vitrine
+      - termitiere-content:/content
+
     environment:
       PORT: "8082"
-      GITHUB_TOKEN: "${PUBLISH_GITHUB_TOKEN}"
-      GITHUB_REPO: "${PUBLISH_GITHUB_REPO:-martheSOK/site-vitrine-de-la-termitiere}"
-      GITHUB_BRANCH: "${PUBLISH_GITHUB_BRANCH:-docker-deployment}"
+
       SESSION_SECRET: "${PUBLISH_SESSION_SECRET}"
       USERS_JSON: "${PUBLISH_USERS_JSON}"
 
+      # Racine du contenu persistant
+      CONTENT_DIR: "/content"
+
+      # Statistiques de visite (onglet "Statistiques", optionnel)
+      GA_PROPERTY_ID: "${GA_PROPERTY_ID}"
+      GOOGLE_SERVICE_ACCOUNT_KEY_BASE64: "${GOOGLE_SERVICE_ACCOUNT_KEY_BASE64}"
+
     networks:
       - deploy_default
+
+
+# ==============================================================
+# VOLUME PERSISTANT
+# ==============================================================
+
+volumes:
+  termitiere-content:
+    external: true
+    name: termitiere-content
 
 
 # ==============================================================

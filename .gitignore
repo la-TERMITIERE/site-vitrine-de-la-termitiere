@@ -8,3 +8,9 @@ node_modules/
 .env
 .env.*
 !.env.example
+publish-proxy/server.js.backup
+deploy/a-transmettre-au-deployeur.txt
+
+# Test local du publish-proxy (donnees generees, cookie curl)
+publish-proxy/test-content-local/
+publish-proxy/cookies.txt

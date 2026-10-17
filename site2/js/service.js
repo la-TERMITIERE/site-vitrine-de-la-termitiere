@@ -30,12 +30,30 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sector-title').textContent = s.name;
   document.getElementById('sector-breadcrumb-name').textContent = s.name;
 
-  if (!s.heroSkip && (s.heroPhoto || (s.photos && s.photos.length))) {
-    const heroPhoto = document.createElement('div');
-    heroPhoto.className = 'sector-hero-photo';
-    heroPhoto.style.backgroundImage = `url('${s.heroPhoto || (s.photosDir + s.photos[0])}')`;
-    document.getElementById('sector-hero').prepend(heroPhoto);
+  if (!s.heroSkip) {
+    const heroImgs = Array.isArray(s.heroPhotos) && s.heroPhotos.length
+      ? s.heroPhotos
+      : (s.heroPhoto ? [s.heroPhoto]
+        : (s.photos && s.photos.length ? [s.photosDir + s.photos[0]] : []));
+    const heroEl = document.getElementById('sector-hero');
+    heroImgs.forEach((src, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'sector-hero-photo' + (i === 0 ? ' active' : '');
+      slide.style.backgroundImage = `url('${src}')`;
+      if (s.heroPosition) slide.style.backgroundPosition = s.heroPosition;
+      heroEl.appendChild(slide);
+    });
+    if (heroImgs.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const slides = heroEl.querySelectorAll('.sector-hero-photo');
+      let cur = 0;
+      setInterval(() => {
+        slides[cur].classList.remove('active');
+        cur = (cur + 1) % slides.length;
+        slides[cur].classList.add('active');
+      }, 5000);
+    }
   }
+
 
   /* ---------- Icônes ---------- */
   const ICONS = {
@@ -72,12 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ---------- Colonne principale ---------- */
-  let mainHtml = `<p class="sector-mission-text">${s.mission}</p>`;
+  let mainHtml = '';
+  if (s.logo) {
+    mainHtml += `<img class="sector-brand-logo" src="${s.logo}" alt="Logo ${s.name}">`;
+  }
+  mainHtml += `<p class="sector-mission-text">${s.mission}</p>`;
   mainHtml += renderCtaButtons(s);
 
   // Médias
   const hasPhotos = s.photos && s.photos.length > 0;
-  if (hasPhotos) {
+  if (hasPhotos || s.hideMediaPlaceholder) {
     mainHtml += `<div class="media-placeholder" style="display:none;"></div>`; // no-op safeguard
   } else {
     mainHtml += `
@@ -185,16 +207,22 @@ document.addEventListener('DOMContentLoaded', () => {
   if (s.localisation) {
     sideHtml += `<div class="info-card"><div class="lbl">${ICONS.pin} Localisation</div><p>${s.localisation}</p></div>`;
   }
-  if (s.whatsapp) {
-    sideHtml += `<div class="info-card"><div class="lbl">${ICONS.phone} Téléphone</div><p><a href="tel:+${s.whatsapp}">${formatPhone(s.whatsapp)}</a></p></div>`;
-  }
+  const contactList = Array.isArray(s.contacts) && s.contacts.length
+    ? s.contacts
+    : ((s.phone || s.whatsapp) ? [{ label: '', phone: s.phone || s.whatsapp }] : []);
+  contactList.forEach(c => {
+    const num = c.phone || c.whatsapp;
+    if (!num) return;
+    const lbl = c.label ? ` — ${c.label}` : '';
+    sideHtml += `<div class="info-card"><div class="lbl">${ICONS.phone} Téléphone${lbl}</div><p><a href="tel:+${num}">${formatPhone(num)}</a></p></div>`;
+  });
   if (s.tiktok) {
     sideHtml += `<div class="info-card"><div class="lbl">${ICONS.tiktok} TikTok</div><p><a href="${s.tiktok}" target="_blank" rel="noopener noreferrer">${s.tiktokLabel || 'Voir sur TikTok'}</a></p></div>`;
   }
   sideHtml += `
     <div class="info-card cta">
       <p>Une question sur ce secteur ?</p>
-      <a href="index.html?secteur=${encodeURIComponent(s.name)}#contact" class="btn">Nous contacter</a>
+      <a href="contact.html?secteur=${encodeURIComponent(s.name)}" class="btn">Nous contacter</a>
     </div>`;
   sideHtml += renderOtherSectors(s.id, false);
 
@@ -232,8 +260,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderCtaButtons(sector) {
-    if (!sector.whatsapp && !sector.email) return '';
-    const waNumber = (sector.whatsapp || '').replace(/\D/g, '');
+    const waContacts = (Array.isArray(sector.contacts) && sector.contacts.length
+      ? sector.contacts
+      : (sector.whatsapp ? [{ label: '', whatsapp: sector.whatsapp }] : [])
+    ).filter(c => c.whatsapp);
+    if (!waContacts.length && !sector.email) return '';
     const waInscMsg = encodeURIComponent(`Bonjour, je souhaite m'inscrire / bénéficier du service ${sector.name}.`);
     const waInfoMsg = encodeURIComponent(`Bonjour, je souhaite obtenir des informations complémentaires concernant ${sector.name}.`);
 
@@ -241,12 +272,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const mailIcon = '<svg viewBox="0 0 16 16" fill="currentColor" width="17" height="17"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.758 2.855L15 11.114V5.383zm-.03 5.672-5.48-3.29-1.49 1.18a1 1 0 0 1-1.2 0L5.51 7.765 1.03 11.055a1 1 0 0 0 .97.945h12a1 1 0 0 0 .97-.945zM1.03 5.383v5.73l4.758-2.855L1.03 5.383z"/></svg>';
 
     // Bouton "S'inscrire / en bénéficier" masqué temporairement (inscription en ligne pas encore
-    // disponible au lancement). Décommenter la ligne ci-dessous une fois le module prêt :
-    // <a class="btn btn-primary" href="https://wa.me/${waNumber}?text=${waInscMsg}" target="_blank" rel="noopener noreferrer">S'inscrire / en bénéficier</a>
+    // disponible au lancement). Décommenter une fois le module prêt (voir waInscMsg).
+    void waInscMsg;
+    const waButtons = waContacts.map(c => {
+      const waNum = String(c.whatsapp).replace(/\D/g, '');
+      const lbl = c.label ? ` ${c.label}` : '';
+      return `<a class="btn btn-whatsapp" href="https://wa.me/${waNum}?text=${waInfoMsg}" target="_blank" rel="noopener noreferrer">${waIcon} WhatsApp${lbl}</a>`;
+    }).join('');
     return `
       <div class="cta-buttons">
-        <a class="btn btn-whatsapp" href="https://wa.me/${waNumber}?text=${waInfoMsg}" target="_blank" rel="noopener noreferrer">${waIcon} WhatsApp</a>
-        <a class="btn btn-secondary" href="index.html?secteur=${encodeURIComponent(sector.name)}#contact">${mailIcon} Nous contacter</a>
+        ${waButtons}
+        <a class="btn btn-secondary" href="contact.html?secteur=${encodeURIComponent(sector.name)}">${mailIcon} Nous contacter</a>
       </div>`;
   }
 });

@@ -31,13 +31,14 @@
     if (prefersReducedMotion) {
       videoDone = true;
     } else {
+      video.playbackRate = 1.8; // video source dure ~7s, on l'accelere pour un ecran de chargement plus court
       video.addEventListener('ended', () => { videoDone = true; maybeHide(); });
       video.play().catch(() => { videoDone = true; maybeHide(); });
     }
   }
 
   maybeHide();
-  setTimeout(hide, 8500); // filet de sécurité si le chargement traîne
+  setTimeout(hide, 5000); // filet de securite si le chargement traine
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,13 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (secteur) {
       sectorInput.value = secteur;
       sectorField.style.display = '';
-      // Le champ ajouté décale la mise en page après le saut d'ancre initial du navigateur :
-      // on recale le défilement sur #contact une fois le champ affiché.
-      if (window.location.hash === '#contact') {
-        requestAnimationFrame(() => {
-          document.getElementById('contact').scrollIntoView();
-        });
-      }
     }
   }
 
@@ -97,6 +91,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* ---------- Sous-menus deroulants (nav) ---------- */
+  const navDropdowns = document.querySelectorAll('.nav-dropdown');
+  const closeAllDropdowns = () => {
+    navDropdowns.forEach(d => {
+      d.classList.remove('open');
+      d.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+    });
+  };
+  navDropdowns.forEach(dropdown => {
+    const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+    if (!toggle) return;
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !dropdown.classList.contains('open');
+      closeAllDropdowns();
+      if (willOpen) {
+        dropdown.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+  document.addEventListener('click', closeAllDropdowns);
+  if (navToggle) {
+    navToggle.addEventListener('click', () => {
+      if (!mainNav.classList.contains('open')) closeAllDropdowns();
+    });
+  }
+
   /* ---------- Lien de nav actif au scroll (page d'accueil) ---------- */
   const sections = document.querySelectorAll('main section[id]');
   const navLinks = document.querySelectorAll('.main-nav a[href^="index.html#"], .main-nav a[href^="#"]');
@@ -124,6 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (entry.isIntersecting) {
           entry.target.style.opacity = '1';
           entry.target.style.transform = 'translateY(0)';
+          // Une fois l'apparition terminee, on efface la transition (et son delai)
+          // pour laisser les regles CSS (ex: effet au survol) reprendre la main.
+          entry.target.addEventListener('transitionend', () => {
+            entry.target.style.transition = '';
+          }, { once: true });
           io.unobserve(entry.target);
         }
       });
@@ -131,7 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
     revealEls.forEach(el => {
       el.style.opacity = '0';
       el.style.transform = 'translateY(18px)';
-      el.style.transition = 'opacity .5s ease, transform .5s ease';
+      const delay = el.dataset.revealDelay ? `${el.dataset.revealDelay}s` : '0s';
+      el.style.transition = `opacity .5s ease ${delay}, transform .5s ease ${delay}`;
       io.observe(el);
     });
   }

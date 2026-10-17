@@ -6,12 +6,21 @@
 <title>Page introuvable — La Termitière</title>
 <meta name="robots" content="noindex">
 
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; base-uri 'self'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; script-src 'self' https://www.googletagmanager.com 'unsafe-inline'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self';">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
 <link rel="icon" href="images/logo/logo.png">
 <link rel="stylesheet" href="css/style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-03MEMEM1W5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-03MEMEM1W5');
+</script>
 </head>
 <body>
 
@@ -24,14 +33,31 @@
 
     <nav class="main-nav" id="main-nav">
       <a href="index.html#accueil">Accueil</a>
-      <a href="index.html#apropos">À propos</a>
-      <a href="equipe.html">Équipe</a>
       <a href="index.html#secteurs">Secteurs</a>
-      <a href="galerie.html">Galerie</a>
-      <a href="promotions.html">Promotions</a>
-      <a href="carrieres.html">Carrières</a>
-      <a href="index.html#faq">FAQ</a>
-      <a href="index.html#contact" class="nav-cta">Nous contacter</a>
+      <a href="quiz.html">Gagner</a>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+          L’entreprise
+          <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="apropos.html">À propos</a>
+          <a href="equipe.html">Équipe</a>
+          <a href="carrieres.html">Carrières</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+          Découvrir
+          <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="galerie.html">Galerie</a>
+          <a href="promotions.html">Promotions</a>
+        </div>
+      </div>
+      <a href="contact.html" class="nav-cta">Nous contacter</a>
     </nav>
 
     <div class="nav-controls">
@@ -69,14 +95,15 @@
       </span>
     </a>
     <nav>
-      <a href="index.html#apropos">À propos</a>
+      <a href="apropos.html">À propos</a>
       <a href="equipe.html">Équipe</a>
       <a href="index.html#secteurs">Secteurs</a>
       <a href="galerie.html">Galerie</a>
       <a href="promotions.html">Promotions</a>
+      <a href="quiz.html">Gagner</a>
       <a href="carrieres.html">Carrières</a>
-      <a href="index.html#faq">FAQ</a>
-      <a href="index.html#contact">Contact</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
     </nav>
   </div>
   <div class="container footer-fine">

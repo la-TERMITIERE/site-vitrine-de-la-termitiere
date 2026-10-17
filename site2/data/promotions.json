@@ -17,6 +17,13 @@
       "description": "Ceci est un test pour vérifier qu'une promotion expirée ne s'affiche plus.",
       "sector": "batiment",
       "validUntil": "2026-08-11"
+    },
+    {
+      "title": "Offre de lancement Maxi Batiment",
+      "sector": "batiment",
+      "description": "Tarif préférentiel sur les prestations ce mois-ci.",
+      "validUntil": "2026-09-02",
+      "photo": "/images/uploads/maxi-batiment-8.jpg"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "title": "aaaaaa",
+      "title": "TEST",
       "type": "Stage",
       "location": "Lomé",
       "sector": "sport",
@@ -39,8 +39,16 @@
       "description": "Recherche bénévole motivé pour animer des activités ludiques et éducatives auprès des enfants les week-ends.",
       "location": "Lomé",
       "sector": "garderie",
-      "dateLimite": "2026-09-06",
+      "dateLimite": "2026-09-07",
       "photo": "/images/uploads/garderie-2.jpg"
+    },
+    {
+      "title": "Comptable stagiaire",
+      "type": "Stage",
+      "sector": "cosmetique",
+      "description": "Stage de comptabilité, suivi des factures et des règlements clients/fournisseurs.",
+      "location": "Lomé",
+      "dateLimite": "2026-10-02"
     }
   ]
 }

@@ -3,7 +3,7 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
-  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; connect-src 'self' https://contact.latermitiere.com; frame-src 'self'; base-uri 'self'; form-action 'self';
+  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; script-src 'self' https://www.googletagmanager.com 'unsafe-inline'; connect-src 'self' https://contact.latermitiere.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; frame-src 'self'; base-uri 'self'; form-action 'self';
 
 /admin/*
   X-Frame-Options: SAMEORIGIN

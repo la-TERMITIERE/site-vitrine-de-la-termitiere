@@ -9,10 +9,10 @@
     "hash-password": "node scripts/hash-password.js"
   },
   "dependencies": {
+    "@google-analytics/data": "^7.0.0",
     "bcryptjs": "^2.4.3",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "multer": "^2.0.0",
-    "node-fetch": "^2.7.0"
+    "multer": "^2.0.0"
   }
 }
