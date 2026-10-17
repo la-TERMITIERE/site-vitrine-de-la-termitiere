@@ -27,6 +27,10 @@
   function inline(text) {
     let html = escapeHtml(text);
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Liens Markdown [texte](https://... ou /page.html)
+    html = html.replace(/\[([^\]]+)\]\((https:\/\/[^\s)]+|\/[^\s)]*)\)/g, (m, label, url) => (url.startsWith('/')
+      ? `<a href="${url}">${label}</a>`
+      : `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`));
     html = html.replace(/(^|[\s(])(https:\/\/[^\s<)]+[^\s<).,;:!?])/g, (m, pre, url) => `${pre}<a href="${url}" target="_blank" rel="noopener noreferrer">${url.replace(/^https:\/\//, '')}</a>`);
     html = html.replace(/(^|[\s(])(\/[a-z0-9-]+\.html(?:[?#][^\s<).,;:!]*)?)/gi, (m, pre, path) => `${pre}<a href="${path}">${path}</a>`);
     return html;
