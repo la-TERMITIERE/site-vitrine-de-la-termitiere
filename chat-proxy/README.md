@@ -32,7 +32,7 @@ Dans `deploy/.env` sur le VPS, **avant** de pousser (sinon le conteneur s'arrêt
 
 ```
 GEMINI_API_KEY=AIza...
-CHAT_MODEL=gemini-3.8-flash    # ou gemini-3.5-flash-lite (plus léger, quotas souvent plus larges)
+CHAT_MODEL=gemini-3.5-flash-lite   # le plus rapide ; gemini-3.8-flash = plus poussé mais ~2x plus lent
 CHAT_RATE_LIMIT_PER_IP=30      # messages max par visiteur toutes les 10 min
 CHAT_DAILY_LIMIT=1000          # messages max par jour (rester sous le quota gratuit)
 ```

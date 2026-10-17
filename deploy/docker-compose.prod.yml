@@ -52,7 +52,7 @@ services:
     environment:
       PORT: "8083"
       GEMINI_API_KEY: "${GEMINI_API_KEY}"
-      CHAT_MODEL: "${CHAT_MODEL:-gemini-3.8-flash}"
+      CHAT_MODEL: "${CHAT_MODEL:-gemini-3.5-flash-lite}"
       RATE_LIMIT_PER_IP: "${CHAT_RATE_LIMIT_PER_IP:-30}"
       DAILY_LIMIT: "${CHAT_DAILY_LIMIT:-1000}"
 

@@ -7,7 +7,7 @@
      GEMINI_API_KEY (cle gratuite sur https://aistudio.google.com/apikey)
    Optionnelles :
      PORT (defaut 8083)
-     CHAT_MODEL (defaut gemini-3.8-flash ; gemini-3.5-flash-lite = plus leger)
+     CHAT_MODEL (defaut gemini-3.5-flash-lite, le plus rapide ; gemini-3.8-flash = plus pousse mais ~2x plus lent)
      RATE_LIMIT_PER_IP (defaut 30 messages / 10 min par visiteur)
      DAILY_LIMIT (defaut 1000 messages / jour au total, pour rester sous le quota gratuit)
      TRUST_PROXY (defaut 2 : reverse proxy de la plateforme + nginx du site)
@@ -22,7 +22,7 @@ const { buildStaticKnowledge, buildDynamicKnowledge } = require('./knowledge');
 const {
   GEMINI_API_KEY,
   PORT = 8083,
-  CHAT_MODEL = 'gemini-3.8-flash',
+  CHAT_MODEL = 'gemini-3.5-flash-lite',
   RATE_LIMIT_PER_IP = '30',
   DAILY_LIMIT = '1000',
   TRUST_PROXY = '2',
