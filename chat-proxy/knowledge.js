@@ -16,9 +16,15 @@ const SITE_DIR = process.env.SITE_DIR
 
 const { SECTORS, SECTOR_ORDER } = require(path.join(SITE_DIR, 'js', 'sector-data.js'));
 
+// En production, promotions et offres publiees via /admin vivent dans le volume
+// partage (DATA_DIR=/content/data) ; sinon on lit la copie embarquee dans l'image.
+const DATA_DIRS = [process.env.DATA_DIR, path.join(SITE_DIR, 'data')].filter(Boolean);
+
 function readItems(file) {
   try {
-    const raw = JSON.parse(fs.readFileSync(path.join(SITE_DIR, 'data', file), 'utf8'));
+    const dir = DATA_DIRS.find((d) => fs.existsSync(path.join(d, file)));
+    if (!dir) throw new Error('fichier introuvable');
+    const raw = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
     return Array.isArray(raw.items) ? raw.items : [];
   } catch (err) {
     console.warn(`Impossible de lire data/${file} :`, err.message);

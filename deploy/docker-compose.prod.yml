@@ -69,8 +69,13 @@ services:
 
     restart: unless-stopped
 
+    volumes:
+      # Promotions / offres publiees via /admin (lecture seule)
+      - termitiere-content:/content:ro
+
     environment:
       PORT: "8083"
+      DATA_DIR: "/content/data"
       GEMINI_API_KEY: "${GEMINI_API_KEY}"
       CHAT_MODEL: "${CHAT_MODEL:-gemini-3.5-flash-lite}"
       RATE_LIMIT_PER_IP: "${CHAT_RATE_LIMIT_PER_IP:-30}"

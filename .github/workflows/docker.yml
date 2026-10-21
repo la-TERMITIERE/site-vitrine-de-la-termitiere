@@ -325,14 +325,25 @@ jobs:
             # INSTALL DOCKER-COMPOSE FROM THE REPOSITORY
             # ============================================================
 
+            # Le compose envoye par le workflow est utilise directement depuis
+            # deploy/.incoming/ : on n'ecrit jamais dans les fichiers du depot
+            # clone sur le VPS (le compte de deploiement n'en a pas le droit).
+            # deploy/.incoming/docker-compose.deployed.yml = derniere version
+            # deployee avec succes, utilisee pour le rollback.
+
+            COMPOSE_FILE="deploy/.incoming/docker-compose.prod.yml"
+
+            PREVIOUS_COMPOSE_FILE="deploy/docker-compose.prod.yml"
+
+            if [ -f deploy/.incoming/docker-compose.deployed.yml ]; then
+
+              PREVIOUS_COMPOSE_FILE="deploy/.incoming/docker-compose.deployed.yml"
+
+            fi
+
             echo
-            echo "Installing docker-compose.prod.yml from the repository..."
-
-            cp deploy/docker-compose.prod.yml deploy/docker-compose.prod.yml.previous
-
-            cp deploy/.incoming/docker-compose.prod.yml deploy/docker-compose.prod.yml
-
-            echo "docker-compose.prod.yml updated (previous kept for rollback)."
+            echo "Compose file: ${COMPOSE_FILE}"
+            echo "Rollback compose file: ${PREVIOUS_COMPOSE_FILE}"
 
 
             # ============================================================
@@ -368,7 +379,7 @@ jobs:
               docker compose \
                 --env-file deploy/.env \
                 --env-file deploy/.env.deploy \
-                -f deploy/docker-compose.prod.yml \
+                -f "$COMPOSE_FILE" \
                 "$@"
 
             }
@@ -432,7 +443,7 @@ jobs:
               # les nouveaux services), puis remet l'ancien docker-compose
               compose down --remove-orphans || true
 
-              cp deploy/docker-compose.prod.yml.previous deploy/docker-compose.prod.yml
+              COMPOSE_FILE="$PREVIOUS_COMPOSE_FILE"
 
               write_deploy_env "$OLD_TAG"
 
@@ -859,6 +870,8 @@ jobs:
 
               echo "======================================="
               echo "DEPLOYMENT COMPLETE"
+
+              cp "$COMPOSE_FILE" deploy/.incoming/docker-compose.deployed.yml
               echo "Version: ${SHA_SHORT}"
               echo "======================================="
 
