@@ -224,6 +224,29 @@ jobs:
     steps:
 
       # --------------------------------------------------------
+      # ENVOI DU DOCKER-COMPOSE SUR LE VPS
+      # Le VPS n'a pas besoin de « git pull » : a chaque deploiement,
+      # la version du depot est copiee dans deploy/.incoming/ puis
+      # installee par le script ci-dessous (l'ancienne est gardee
+      # pour le rollback).
+      # --------------------------------------------------------
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload docker-compose to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: deploy/docker-compose.prod.yml
+          target: /home/bawa/site-vitrine-de-la-termitiere/deploy/.incoming
+          strip_components: 1
+          overwrite: true
+
+
+      # --------------------------------------------------------
       # DEPLOY TO VPS
       # --------------------------------------------------------
 
@@ -296,6 +319,20 @@ jobs:
             fi
 
             echo "Current deployed version: ${OLD_TAG:-none}"
+
+
+            # ============================================================
+            # INSTALL DOCKER-COMPOSE FROM THE REPOSITORY
+            # ============================================================
+
+            echo
+            echo "Installing docker-compose.prod.yml from the repository..."
+
+            cp deploy/docker-compose.prod.yml deploy/docker-compose.prod.yml.previous
+
+            cp deploy/.incoming/docker-compose.prod.yml deploy/docker-compose.prod.yml
+
+            echo "docker-compose.prod.yml updated (previous kept for rollback)."
 
 
             # ============================================================
@@ -390,6 +427,12 @@ jobs:
 
 
               echo "Restoring previous deployment..."
+
+              # Stoppe d'abord les conteneurs de la version en echec (y compris
+              # les nouveaux services), puis remet l'ancien docker-compose
+              compose down --remove-orphans || true
+
+              cp deploy/docker-compose.prod.yml.previous deploy/docker-compose.prod.yml
 
               write_deploy_env "$OLD_TAG"
 
@@ -828,6 +871,15 @@ jobs:
             # AUTOMATIC ROLLBACK
             # ============================================================
 
-            rollback
+            # Meme si le rollback reussit, la nouvelle version n'est PAS en
+            # ligne : le workflow doit apparaitre en rouge sur GitHub.
 
-            exit $?
+            rollback || true
+
+            echo
+            echo "======================================="
+            echo "LA NOUVELLE VERSION N'A PAS ETE DEPLOYEE"
+            echo "Voir les logs ci-dessus pour la cause."
+            echo "======================================="
+
+            exit 1

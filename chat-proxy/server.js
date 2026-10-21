@@ -31,12 +31,14 @@ const {
 } = process.env;
 
 const MOCK = CHAT_MOCK === '1';
-if (!GEMINI_API_KEY && !MOCK) {
-  console.error('GEMINI_API_KEY est obligatoire.');
-  process.exit(1);
+// Sans cle, le service demarre quand meme (pour ne pas bloquer le deploiement
+// du site) mais l'assistant repond qu'il est indisponible.
+const NOT_CONFIGURED = !GEMINI_API_KEY && !MOCK;
+if (NOT_CONFIGURED) {
+  console.error('GEMINI_API_KEY manquante dans deploy/.env : assistant desactive.');
 }
 
-const ai = MOCK ? null : new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const ai = MOCK || NOT_CONFIGURED ? null : new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // Consignes + connaissances stables (identiques a chaque requete)
 const STATIC_SYSTEM = `${ASSISTANT_INSTRUCTIONS}\n\n<base_de_connaissances>\n${buildStaticKnowledge()}\n</base_de_connaissances>`;
@@ -99,6 +101,11 @@ app.use(express.json({ limit: '64kb' }));
 app.get('/health', (req, res) => res.send('ok'));
 
 app.post('/api/chat', async (req, res) => {
+  if (NOT_CONFIGURED) {
+    res.status(503).json({ ok: false, error: "L'assistant n'est pas encore disponible. Contactez-nous au 96 09 49 49 ou via le formulaire de contact." });
+    return;
+  }
+
   const messages = sanitizeMessages(req.body && req.body.messages);
   if (!messages) {
     res.status(400).json({ ok: false, error: 'Conversation invalide.' });

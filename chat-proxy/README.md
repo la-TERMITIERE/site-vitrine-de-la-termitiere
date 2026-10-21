@@ -28,7 +28,7 @@ Modifier un tarif dans `sector-data.js` ou publier une promotion via `/admin` d�
 
 ## 2. Configurer le serveur
 
-Dans `deploy/.env` sur le VPS, **avant** de pousser (sinon le conteneur s'arrête au démarrage et le déploiement est annulé) :
+Dans `deploy/.env` sur le VPS (une seule fois). Sans clé, le site se déploie quand même mais l'assistant répond qu'il est indisponible. Le fichier `docker-compose.prod.yml` est envoyé automatiquement sur le VPS à chaque déploiement : pas de `git pull` à faire sur le serveur.
 
 ```
 GEMINI_API_KEY=AIza...
